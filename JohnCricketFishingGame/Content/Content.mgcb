@@ -10,8 +10,15 @@
 
 #-------------------------------- References --------------------------------#
 
+/reference:..\MonoGame.Extended.Content.Pipeline.dll
 
 #---------------------------------- Content ---------------------------------#
+
+#begin Assets/Art/Animation/Fish.sf
+/importer:SpriteFactoryContentImporter
+/processor:SpriteFactoryContentProcessor
+/processorParam:ContentType=MonoGame.Extended MonoGame.Extended.Animations.SpriteFactory.SpriteFactoryFileReader, MonoGame.Extended.Animations
+/build:Assets/Art/Animation/Fish.sf
 
 #begin Assets/Art/Fish.png
 /importer:TextureImporter
@@ -24,6 +31,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Assets/Art/Fish.png
+
+#begin Assets/Art/Playfield.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Art/Playfield.png
 
 #begin Assets/Art/Rod.png
 /importer:TextureImporter

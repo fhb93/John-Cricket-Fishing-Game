@@ -23,13 +23,15 @@ namespace JohnCricketFishingGame
         public static GraphicsDeviceManager GameGraphics;
         
         //Game stuff
-        private List<Fish> fishList;
+        public static List<Fish> fishList;
         private int _fishCount = 1;
+        private Rod _rod;
         private Effect _effect;
-        private Tweener _tweener;
         private readonly GamePadListener _gamePadListener;
         private readonly KeyboardListener _keyboardListener;
 
+        private int playerFishID = 0;
+        private Vector2 destination = Vector2.Zero;
         private int vcsWidth = 192;
         private int vcsHeight = 160;
         private int ScreenWidth = 1024;
@@ -53,12 +55,9 @@ namespace JohnCricketFishingGame
 
         }
 
+
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-            fishList = new List<Fish>();
-
-            _tweener = new Tweener();
             _renderTarget2D = new RenderTarget2D(
                 GraphicsDevice,
                 vcsWidth, vcsHeight,
@@ -71,32 +70,49 @@ namespace JohnCricketFishingGame
 
         protected override void LoadContent()
         {
+            Setup();
+        }
+
+        private void Setup()
+        {
+            fishList = new List<Fish>();
+
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             for (int i = 0; i < _fishCount; i++)
             {
-                fishList.Add(new Fish()); 
+                fishList.Add(new Fish());
             }
 
             _effect = Content.Load<Effect>("Assets/Shaders/crt-lottes-mg");
+            _rod = new Rod();
 
             SetupEffect();
+
+            UpdateFishStatus();
         }
 
-           
-        Vector2 destination = Vector2.Zero;
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || 
+                Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            _rod.Update(gameTime);
+           
+             
 
-            _keyboardListener.KeyPressed += (sender, args) => destination = HandleInput(args.Key); //{ Window.Title = $"Key {args.Key} Pressed"; };
-            _gamePadListener.ButtonDown += (sender, args) => { Window.Title = $"Key {args.Button} Down"; };
-
-            _tweener.Update(gameTime.GetElapsedSeconds());
-
+            if (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Space))
+            {
+                _keyboardListener.KeyPressed += (sender, args) => destination = HandleMoveInput(args.Key); //{ Window.Title = $"Key {args.Key} Pressed"; };
+                _gamePadListener.ButtonDown += (sender, args) => { Window.Title = $"Key {args.Button} Down"; };
+            }
+            else
+            {
+                destination = Vector2.Zero;
+                _keyboardListener.KeyPressed += (sender, args) => ToggleFishInput(args.Key);
+            }
 
             for (int i = 0; i < fishList.Count;i++)
             {
@@ -122,8 +138,10 @@ namespace JohnCricketFishingGame
 
             for (int i = 0; i < fishList.Count; i++)
             {
-                fishList[i].Draw(_spriteBatch);
+                fishList[i].Draw(_spriteBatch, i == playerFishID ? true : false);
             }
+
+            _rod.Draw(_spriteBatch);
 
             _spriteBatch.End();
 
@@ -172,7 +190,7 @@ namespace JohnCricketFishingGame
             _effect.Parameters["outputSize"]?.SetValue(outSize);
         }
 
-        private Vector2 HandleInput(Keys key)
+        private Vector2 HandleMoveInput(Keys key)
         {
             switch (key)
             {
@@ -190,6 +208,46 @@ namespace JohnCricketFishingGame
                     return Vector2.UnitX;
                 default:
                     return Vector2.Zero;
+            }
+        }
+
+        private void UpdateFishStatus()
+        {
+            for(int i =0; i < fishList.Count; i++)
+            {
+                fishList[i].UpdateFishActivation(false);
+            }
+
+            fishList[playerFishID].UpdateFishActivation(true);
+        }
+
+        private void ToggleFishInput(Keys key)
+        {
+            switch (key)
+            {
+                case Keys.A:
+                case Keys.Left:
+                    
+                    if(playerFishID > 0)
+                    {
+                        playerFishID--;
+                        UpdateFishStatus();
+                    }
+                    
+                    break;
+                case Keys.D:
+                case Keys.Right:
+                
+                    if (playerFishID < _fishCount - 1)
+                    {
+                        playerFishID++;
+                        UpdateFishStatus();
+                    }
+
+                    break;
+                default:
+                    break;
+
             }
         }
     }

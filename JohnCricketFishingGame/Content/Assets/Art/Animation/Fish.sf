@@ -1,0 +1,13 @@
+{
+  "textureAtlas": {
+    "texture": "../Fish.png",
+    "regionWidth": 10,
+    "regionHeight": 10
+  },
+  "cycles": {
+    "walk": {
+      "frames": [0,1],
+      "isLooping": true
+    }
+  }
+}
