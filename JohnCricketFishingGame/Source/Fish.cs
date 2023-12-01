@@ -41,7 +41,7 @@ namespace JohnCricketFishingGame.Source
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime = null)
         {
-            spriteBatch.Draw(_playField, new Rectangle(0,40, 192, 120), Color.White);
+            spriteBatch.Draw(_playField, new Rectangle(0,40, 192, 120), Color.Gray);
 
             _animatedSprite.Color = IsEnabled? Color.Yellow : Color.White;
 

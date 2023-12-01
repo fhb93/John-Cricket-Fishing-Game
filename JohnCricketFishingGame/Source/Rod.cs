@@ -32,7 +32,7 @@ namespace JohnCricketFishingGame.Source
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(_sprite, Location, Color.Yellow);
+            spriteBatch.Draw(_sprite, Location, Color.SaddleBrown);
 
             spriteBatch.Draw(_targetSprite, Target, Color.MonoGameOrange * 0.85f);
         }
