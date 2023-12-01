@@ -1,0 +1,13 @@
+{
+  "textureAtlas": {
+    "texture": "../JohnCricketCover.png",
+    "regionWidth": 48,
+    "regionHeight": 40
+  },
+  "cycles": {
+    "menu": {
+      "frames": [0,1,2],
+      "isLooping": true
+    }
+  }
+}

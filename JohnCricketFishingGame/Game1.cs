@@ -28,10 +28,11 @@ namespace JohnCricketFishingGame
         public static List<Fish> fishList;
         private GameStats _gameStats;
         private GameInput gameInput;
-        private int _playerFishID = 0;
-        private int _fishCount = 8;
         private Rod _rod;
         private Effect _effect;
+        private Menu _menu;
+        private int _playerFishID = 0;
+        private int _fishCount = 8;
         
 
         private Vector2 destination = Vector2.Zero;
@@ -41,6 +42,7 @@ namespace JohnCricketFishingGame
         private int ScreenHeight = 768;
         // bad/shortcut solution for one shot event input
         private bool _isOneShotInput = false;
+        private bool _isMenuEnabled = true;
 
         public static EventHandler<int> ScoreListener;
 
@@ -87,10 +89,9 @@ namespace JohnCricketFishingGame
             //_gameStats.SetChallengeLevel();
 
             fishList = new List<Fish>();
-
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
             _fishCount = 8;
+            _menu = new Menu();
 
             for (int i = 0; i < _fishCount; i++)
             {
@@ -112,6 +113,8 @@ namespace JohnCricketFishingGame
 
         protected override void Update(GameTime gameTime)
         {
+            _menu.Update(gameTime);
+
             if(_gameStats.IsGameOver)
             {
                //MainMenu
@@ -175,6 +178,7 @@ namespace JohnCricketFishingGame
         }
 
 
+
         protected void DrawSceneToTexture(RenderTarget2D renderTarget)
         {
             // Set the render target
@@ -187,14 +191,13 @@ namespace JohnCricketFishingGame
 
             _spriteBatch.Begin();
 
-            for (int i = 0; i < fishList.Count; i++)
+            if(GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed ||
+                Keyboard.GetState().IsKeyDown(Keys.Space)) 
             {
-                fishList[i].Draw(_spriteBatch);
+                _isMenuEnabled = false;
             }
 
-            _rod.Draw(_spriteBatch);
-
-            _gameStats.Draw(_spriteBatch);
+            DrawGame(_isMenuEnabled);
 
             _spriteBatch.End();
 
@@ -217,6 +220,24 @@ namespace JohnCricketFishingGame
             _spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        private void DrawGame(bool isMenuEnabled)
+        {
+            if(isMenuEnabled == true)
+            {
+                _menu.Draw(_spriteBatch);
+                return;
+            }
+
+            for (int i = 0; i < fishList.Count; i++)
+            {
+                fishList[i].Draw(_spriteBatch);
+            }
+
+            _rod.Draw(_spriteBatch);
+
+            _gameStats.Draw(_spriteBatch);
         }
 
         private void SetupEffect()

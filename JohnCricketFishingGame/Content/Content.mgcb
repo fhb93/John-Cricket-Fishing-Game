@@ -20,6 +20,12 @@
 /processorParam:ContentType=MonoGame.Extended MonoGame.Extended.Animations.SpriteFactory.SpriteFactoryFileReader, MonoGame.Extended.Animations
 /build:Assets/Art/Animation/Fish.sf
 
+#begin Assets/Art/Animation/JohnCricketCover.sf
+/importer:SpriteFactoryContentImporter
+/processor:SpriteFactoryContentProcessor
+/processorParam:ContentType=MonoGame.Extended MonoGame.Extended.Animations.SpriteFactory.SpriteFactoryFileReader, MonoGame.Extended.Animations
+/build:Assets/Art/Animation/JohnCricketCover.sf
+
 #begin Assets/Art/Fish.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -31,6 +37,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Assets/Art/Fish.png
+
+#begin Assets/Art/JohnCricketCover.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Art/JohnCricketCover.png
 
 #begin Assets/Art/Playfield.png
 /importer:TextureImporter
