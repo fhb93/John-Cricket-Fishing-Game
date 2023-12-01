@@ -39,17 +39,14 @@ namespace JohnCricketFishingGame.Source
         public Vector2 Location { get; private set; }
           
 
-        public void Draw(SpriteBatch spriteBatch, bool isPlayerControlled = false, GameTime gameTime = null)
+        public void Draw(SpriteBatch spriteBatch, GameTime gameTime = null)
         {
             spriteBatch.Draw(_playField, new Rectangle(0,40, 192, 120), Color.White);
 
-            if(isPlayerControlled)
-            {
-                _animatedSprite.Color = Color.Yellow;
-            }
+            _animatedSprite.Color = IsEnabled? Color.Yellow : Color.White;
 
             spriteBatch.Draw(_animatedSprite, Location);
-            spriteBatch.DrawCircle(Target, 8, 8, Color.Red * 0.6f);
+            spriteBatch.DrawCircle(Target, 8, 4, Color.LightSalmon * 0.2f);
         }
 
         public void Update(GameTime gameTime)
@@ -71,7 +68,7 @@ namespace JohnCricketFishingGame.Source
             IsEnabled = isOn;
         }
 
-        public Fish()
+        public Fish(int offset)
         {
             _scale = 1;
 
@@ -79,7 +76,22 @@ namespace JohnCricketFishingGame.Source
             _playField = Game1.GameContent.Load<Texture2D>("Assets/Art/Playfield");
             _animatedSprite = new AnimatedSprite(_sprite);
 
-            _cornerPosition = new Vector2(192 / 2, 160 * 3 / 4);
+            Vector2 startPos = Vector2.Zero;
+
+            // offset is less than half fish plus one
+            if(offset < 4)
+            {
+                startPos += Vector2.UnitX * ((192 / 4) + offset * 32);
+                startPos += Vector2.UnitY * (160 * 2 / 4);
+            }
+            else
+            {
+                int tempOffset = offset - 4;
+                startPos += Vector2.UnitX * ((192 / 4) + tempOffset * 32);
+                startPos += Vector2.UnitY * (160 * 3 / 4);
+            }
+
+            _cornerPosition = startPos;
 
             _boundingBox = _animatedSprite.GetBoundingRectangle(_animatedSprite.Origin, 0f, Vector2.One);
 
@@ -87,6 +99,8 @@ namespace JohnCricketFishingGame.Source
               Vector2.UnitY * _boundingBox.Height * 0.5f;
 
             _tweener = new Tweener();
+
+            IsEnabled = false;
 
             _animatedSprite.Play("walk");
         }

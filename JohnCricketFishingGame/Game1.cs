@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.Input.InputListeners;
 using MonoGame.Extended.Screens;
+using MonoGame.Extended.Timers;
 using MonoGame.Extended.Tweening;
 using System;
 using System.Collections.Generic;
@@ -24,18 +25,24 @@ namespace JohnCricketFishingGame
         
         //Game stuff
         public static List<Fish> fishList;
-        private int _fishCount = 1;
+        private GameStats _gameStats;
+
+        private int _fishCount = 8;
         private Rod _rod;
         private Effect _effect;
         private readonly GamePadListener _gamePadListener;
         private readonly KeyboardListener _keyboardListener;
 
-        private int playerFishID = 0;
         private Vector2 destination = Vector2.Zero;
+        private int playerFishID = 0;
         private int vcsWidth = 192;
         private int vcsHeight = 160;
         private int ScreenWidth = 1024;
         private int ScreenHeight = 768;
+        // bad/shortcut solution for one shot event input
+        private bool _isOneShotInput = false;
+       
+
 
         public Game1()
         {
@@ -73,15 +80,20 @@ namespace JohnCricketFishingGame
             Setup();
         }
 
+       
         private void Setup()
         {
+            _gameStats = new GameStats();
+
+            //_gameStats.SetChallengeLevel();
+
             fishList = new List<Fish>();
 
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             for (int i = 0; i < _fishCount; i++)
             {
-                fishList.Add(new Fish());
+                fishList.Add(new Fish(i));
             }
 
             _effect = Content.Load<Effect>("Assets/Shaders/crt-lottes-mg");
@@ -90,39 +102,77 @@ namespace JohnCricketFishingGame
             SetupEffect();
 
             UpdateFishStatus();
+
+            _keyboardListener.KeyPressed += (sender, args) => destination = HandleMoveInput(args.Key); //{ Window.Title = $"Key {args.Key} Pressed"; };
+            _gamePadListener.ButtonDown += (sender, args) => { Window.Title = $"Key {args.Button} Down"; };
+
         }
 
 
         protected override void Update(GameTime gameTime)
         {
+            if(_gameStats.IsGameOver)
+            {
+               // Exit();
+            }
+            _gameStats.Update(gameTime);
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || 
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
             _rod.Update(gameTime);
-           
-             
 
+            // Only move fish if primary button is being hold, below code changes highlit fish according to player input
             if (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Space))
             {
-                _keyboardListener.KeyPressed += (sender, args) => destination = HandleMoveInput(args.Key); //{ Window.Title = $"Key {args.Key} Pressed"; };
-                _gamePadListener.ButtonDown += (sender, args) => { Window.Title = $"Key {args.Button} Down"; };
+                // TODO: add costumer awareness here
+               
             }
             else
             {
+              
+
+                if (GamePad.GetState(PlayerIndex.One).DPad.Left == ButtonState.Pressed ||
+                   Keyboard.GetState().IsKeyDown(Keys.Left))
+                {
+                    ToggleFishInput(Keys.Left);
+                }
+                else if (GamePad.GetState(PlayerIndex.One).DPad.Right == ButtonState.Pressed ||
+                    Keyboard.GetState().IsKeyDown(Keys.Right))
+                {
+                    ToggleFishInput(Keys.Right);
+                }
+                else if (GamePad.GetState(PlayerIndex.One).DPad.Up == ButtonState.Pressed ||
+                  Keyboard.GetState().IsKeyDown(Keys.Up))
+                {
+                    ToggleFishInput(Keys.Up);
+                }
+                else if(GamePad.GetState(PlayerIndex.One).DPad.Down == ButtonState.Pressed ||
+                  Keyboard.GetState().IsKeyDown(Keys.Down))
+                {
+                    ToggleFishInput(Keys.Down);
+                }
+                else
+                {
+                    _isOneShotInput = false;
+                }
+
                 destination = Vector2.Zero;
-                _keyboardListener.KeyPressed += (sender, args) => ToggleFishInput(args.Key);
             }
+            
 
             for (int i = 0; i < fishList.Count;i++)
             {
                 fishList[i].Update(gameTime);
-                fishList[i].Move(destination * gameTime.GetElapsedSeconds());
             }
+                
+            fishList[playerFishID].Move(destination * gameTime.GetElapsedSeconds());
 
 
             base.Update(gameTime);
         }
+
 
         protected void DrawSceneToTexture(RenderTarget2D renderTarget)
         {
@@ -138,10 +188,12 @@ namespace JohnCricketFishingGame
 
             for (int i = 0; i < fishList.Count; i++)
             {
-                fishList[i].Draw(_spriteBatch, i == playerFishID ? true : false);
+                fishList[i].Draw(_spriteBatch);
             }
 
             _rod.Draw(_spriteBatch);
+
+            _gameStats.Draw(_spriteBatch);
 
             _spriteBatch.End();
 
@@ -213,7 +265,7 @@ namespace JohnCricketFishingGame
 
         private void UpdateFishStatus()
         {
-            for(int i =0; i < fishList.Count; i++)
+            for(int i = 0; i < fishList.Count; i++)
             {
                 fishList[i].UpdateFishActivation(false);
             }
@@ -221,24 +273,45 @@ namespace JohnCricketFishingGame
             fishList[playerFishID].UpdateFishActivation(true);
         }
 
+
         private void ToggleFishInput(Keys key)
         {
+            if(_isOneShotInput == true) 
+            {
+                return;
+            }
+            
+            _isOneShotInput = true;
+
+
             switch (key)
             {
-                case Keys.A:
+                case Keys.Up:
+                    if (playerFishID > ((_fishCount - 1) / 2))
+                    {
+                        playerFishID -= 4;
+                        UpdateFishStatus();
+                    }
+                    break;
                 case Keys.Left:
                     
-                    if(playerFishID > 0)
+                    if(playerFishID > 0 && playerFishID != (_fishCount/ 2))
                     {
                         playerFishID--;
                         UpdateFishStatus();
                     }
-                    
                     break;
-                case Keys.D:
+                case Keys.Down:
+                    if (playerFishID <= ((_fishCount - 1) / 2))
+                    {
+                        playerFishID += 4;
+                        UpdateFishStatus();
+                    }
+
+                    break;
                 case Keys.Right:
                 
-                    if (playerFishID < _fishCount - 1)
+                    if (playerFishID < (_fishCount - 1) && playerFishID != ((_fishCount - 1) / 2))
                     {
                         playerFishID++;
                         UpdateFishStatus();

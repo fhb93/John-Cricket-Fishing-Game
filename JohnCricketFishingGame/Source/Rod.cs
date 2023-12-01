@@ -14,6 +14,7 @@ namespace JohnCricketFishingGame.Source
     public class Rod
     {
         private Texture2D _sprite;
+        private Texture2D _targetSprite;
         private FastRandom _random;
         private Tweener _tweener;
         private Size2 _targetSize;
@@ -31,9 +32,9 @@ namespace JohnCricketFishingGame.Source
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(_sprite, Location, Color.White);
+            spriteBatch.Draw(_sprite, Location, Color.Yellow);
 
-            spriteBatch.FillRectangle(Target, _targetSize, Color.Red * 0.4f);
+            spriteBatch.Draw(_targetSprite, Target, Color.MonoGameOrange * 0.85f);
         }
        
 
@@ -80,6 +81,7 @@ namespace JohnCricketFishingGame.Source
             _targetSize = new Size2(7, 7);
             _tweener = new Tweener();
             _random = new FastRandom();
+            _targetSprite = Game1.GameContent.Load<Texture2D>("Assets/Art/RodTarget");
             _sprite = Game1.GameContent.Load<Texture2D>("Assets/Art/Rod");
             _bounds = new RectangleF(Target, _targetSize);
         }
