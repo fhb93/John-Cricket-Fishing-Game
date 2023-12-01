@@ -24,6 +24,8 @@ namespace JohnCricketFishingGame.Source
         private AnimatedSprite _animatedSprite;
 
         private RectangleF _boundingBox;
+        private RectangleF _validArea;
+        private Color playfieldColor;
 
         private float _scale;
 
@@ -41,7 +43,7 @@ namespace JohnCricketFishingGame.Source
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime = null)
         {
-            spriteBatch.Draw(_playField, new Rectangle(0,40, 192, 120), Color.Gray);
+            spriteBatch.Draw(_playField, new Rectangle(0,40, 192, 120), playfieldColor);
 
             _animatedSprite.Color = IsEnabled? Color.Yellow : Color.White;
 
@@ -60,7 +62,16 @@ namespace JohnCricketFishingGame.Source
 
         public void Move(Vector2 destination)
         {
-            Location += destination * 15;
+            if (_validArea.Contains(Location + destination * 15))
+            {
+                playfieldColor = Color.Gray;
+
+                Location += destination * 15;
+            }
+            else
+            {
+                playfieldColor = Color.Red;
+            }
         }
 
         public void UpdateFishActivation(bool isOn)
@@ -94,6 +105,8 @@ namespace JohnCricketFishingGame.Source
             _cornerPosition = startPos;
 
             _boundingBox = _animatedSprite.GetBoundingRectangle(_animatedSprite.Origin, 0f, Vector2.One);
+           
+            _validArea = new Rectangle(22, 44, 160, 100);
 
             Location = _cornerPosition - Vector2.UnitX * _boundingBox.Width * 0.5f -
               Vector2.UnitY * _boundingBox.Height * 0.5f;
