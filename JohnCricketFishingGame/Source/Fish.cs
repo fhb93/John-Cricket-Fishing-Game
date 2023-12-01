@@ -28,9 +28,9 @@ namespace JohnCricketFishingGame.Source
         private Color playfieldColor;
 
         private float _scale;
+        private bool _isCaught;
 
         private Tweener _tweener;
-
 
         public bool IsEnabled { get; private set; }
         public Vector2 _cornerPosition { get; private set; }
@@ -43,12 +43,26 @@ namespace JohnCricketFishingGame.Source
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime = null)
         {
-            spriteBatch.Draw(_playField, new Rectangle(0,40, 192, 120), playfieldColor);
+            spriteBatch.Draw(_playField, new Rectangle(0, 40, 192, 120), playfieldColor);
 
-            _animatedSprite.Color = IsEnabled? Color.Yellow : Color.White;
+            _animatedSprite.Color = Color.White;
+
+            Color targetColor = Color.LightSalmon;
+            
+            if (IsEnabled == true)
+            {
+                _animatedSprite.Color = Color.Yellow;
+                targetColor = Color.Yellow;
+            }
+            if(_isCaught)
+            {
+                _animatedSprite.Color = Color.Transparent;
+                targetColor = Color.Transparent;
+            }
 
             spriteBatch.Draw(_animatedSprite, Location);
-            spriteBatch.DrawCircle(Target, 8, 4, Color.LightSalmon * 0.2f);
+
+            spriteBatch.DrawCircle(Target, 8, 4, targetColor * 0.2f);
         }
 
         public void Update(GameTime gameTime)
@@ -79,6 +93,18 @@ namespace JohnCricketFishingGame.Source
             IsEnabled = isOn;
         }
 
+        public void RemoveFish(int index)
+        {
+            //Game1.fishList.RemoveAt(index);
+
+            Game1.fishList[index]._isCaught = true;
+
+            for (int i = 0; i < Game1.fishList.Count; i++)
+            {
+                Game1.fishList[i].UpdateFishActivation(false);
+            }
+        }
+
         public Fish(int offset)
         {
             _scale = 1;
@@ -106,7 +132,7 @@ namespace JohnCricketFishingGame.Source
 
             _boundingBox = _animatedSprite.GetBoundingRectangle(_animatedSprite.Origin, 0f, Vector2.One);
            
-            _validArea = new Rectangle(22, 44, 160, 100);
+            _validArea = new Rectangle(22, 44, 145, 100);
 
             Location = _cornerPosition - Vector2.UnitX * _boundingBox.Width * 0.5f -
               Vector2.UnitY * _boundingBox.Height * 0.5f;

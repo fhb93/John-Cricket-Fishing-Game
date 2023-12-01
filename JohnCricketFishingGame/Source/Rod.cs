@@ -16,11 +16,12 @@ namespace JohnCricketFishingGame.Source
         private Size2 _targetSize;
         private double timer;
         private double maxTimer = 5;
+        private const int startingPatience = 12;
         private RectangleF _bounds;
         //patience acts like the speed of fishing rod and also is the number of turns per round
-        // if it reaches 1, the a new round starts with a more difficult costumer
-        // 7 Costumers: Kid; Teen; Bachelor holder; Mayor; Priest; Bishop; Colonel, the fearsome Landowner
-        private int patience = 14;
+        // if it reaches 1, the a new round starts with a more difficult customer
+        // 7 customers: Kid; Teen; Bachelor holder; Mayor; Priest; Bishop; Colonel, the fearsome Landowner
+        private int patience = startingPatience;
 
         public Vector2 Location;
         public Vector2 Target { get { return Location - Vector2.UnitX * _sprite.Bounds.Width * 0.2f + Vector2.UnitY * 60; } }
@@ -40,46 +41,61 @@ namespace JohnCricketFishingGame.Source
             _tweener.TweenTo(target: this, expression: player => player.Location, toValue: newDest, patience, 0.5f)
                 .Easing(EasingFunctions.ElasticInOut); 
         }
-     
+
+        private bool _flag = false;
+
         public void Update(GameTime gt)
         {
             timer += gt.ElapsedGameTime.TotalSeconds;
 
             _tweener.Update(gt.GetElapsedSeconds());
 
-
             _bounds.Position = Target;
 
-            if(timer > maxTimer)
+            if (timer > maxTimer)
             {
                 timer = 0;
                 MoveRandomly();
+
                 if(patience > 1)
                 {
                     patience--;
                 }
             }
 
+            if(_flag)
+            {
+                return;
+            }
+
             for(int i = 0; i < Game1.fishList.Count; i++)
             {
                 if (_bounds.Contains(Game1.fishList[i].Target) && Game1.fishList[i].IsEnabled)
-                {
-                    Console.WriteLine("Catch!!!!!!!!!");
+                { 
+                    // i is the fish we want to remove
+                    Game1.ScoreListener.Invoke(this, i);
+                    Game1.fishList[i].RemoveFish(i);
                     break;
                 }
             }
-
         }
 
         public Rod()
         {
-            Location = new Vector2(96, 32);
-            _targetSize = new Size2(7, 7);
             _tweener = new Tweener();
             _random = new FastRandom();
             _targetSprite = Game1.GameContent.Load<Texture2D>("Assets/Art/RodTarget");
             _sprite = Game1.GameContent.Load<Texture2D>("Assets/Art/Rod");
+            ResetRod();
+            Game1.ScoreListener += (sender, args) => ResetRod();
+        }
+
+        public void ResetRod()
+        {
+            Location = new Vector2(96, 32);
+            _targetSize = new Size2(7, 7);
             _bounds = new RectangleF(Target, _targetSize);
+            patience = startingPatience;
         }
     }
 }
