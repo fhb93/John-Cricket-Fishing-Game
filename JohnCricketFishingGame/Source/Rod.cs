@@ -23,14 +23,14 @@ namespace JohnCricketFishingGame.Source
         private int patience = 14;
 
         public Vector2 Location;
-        public Vector2 Target { get { return Location + Vector2.UnitX * _sprite.Bounds.Width * 0.2f + Vector2.UnitY * 60; } }
+        public Vector2 Target { get { return Location - Vector2.UnitX * _sprite.Bounds.Width * 0.2f + Vector2.UnitY * 60; } }
 
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(_sprite, Location, Color.SaddleBrown);
+            spriteBatch.Draw(_sprite, Location, Color.LightGray);
 
-            spriteBatch.Draw(_targetSprite, Target, Color.MonoGameOrange * 0.85f);
+            spriteBatch.Draw(_targetSprite, Target, Color.Red * 0.85f);
         }
        
 
