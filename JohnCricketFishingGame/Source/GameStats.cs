@@ -52,7 +52,7 @@ namespace JohnCricketFishingGame.Source
             //countDownTimes[(int)CustomerLevel.Bishop] = 20;
             //countDownTimes[(int)CustomerLevel.Colonel] = 15;
 
-            countDownTimes[(int)CustomerLevel.Kid] = 10;
+            countDownTimes[(int)CustomerLevel.Kid] = 9;
             countDownTimes[(int)CustomerLevel.Teen] = 9;
             countDownTimes[(int)CustomerLevel.Bachelor] = 8;
             countDownTimes[(int)CustomerLevel.Mayor] = 7;
@@ -108,15 +108,28 @@ namespace JohnCricketFishingGame.Source
             }
         }
 
+        private float _timer;
+        private float _timerMax = 4f;
+
         public void Update(GameTime gt)
         {
+            if(Game1.IsPaused)
+            {
+                return;
+            }
+            //if (IsGameOver == true && _timer >= _timerMax)
+            //{
+            //    _timer = 0f;
+            //}
+
             if (IsGameOver == true && (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed ||
                 Keyboard.GetState().IsKeyDown(Keys.Space)))
             {
                 IsGameOver = false;
-                SetChallengeLevel();
+                ResetGame();
+
             }
-                
+
             if (_bossWarning == 0)
             {
                 IsGameOver = true;
@@ -124,7 +137,7 @@ namespace JohnCricketFishingGame.Source
 
             if (countDown > 0.1f)
             {
-                countDown -= gt.ElapsedGameTime.TotalSeconds;
+                countDown -= gt.ElapsedGameTime.TotalSeconds * 10;
             }
             else
             {
@@ -152,6 +165,12 @@ namespace JohnCricketFishingGame.Source
                 _suspicion = 0;
                 _bossWarning--;
             }
+        }
+
+        public void ResetGame()
+        {
+            SetChallengeLevel();
+            IsGameOver = false;
         }
 
         public void LowerSuspicion(GameTime gt)

@@ -53,7 +53,6 @@ namespace JohnCricketFishingGame.Source
                 _timer = 0f;
             }
 
-
             _animatedSprite.Update(deltaTime);
         }
     }

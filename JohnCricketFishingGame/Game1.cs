@@ -45,6 +45,7 @@ namespace JohnCricketFishingGame
         private bool _isMenuEnabled = true;
 
         public static EventHandler<int> ScoreListener;
+        public static bool IsPaused { get; private set; }
 
         public Game1()
         {
@@ -115,7 +116,7 @@ namespace JohnCricketFishingGame
 
 
         protected override void Update(GameTime gameTime)
-        {
+        { 
             _menus[0].Update(gameTime);
 
             AudioSystem.Instance.Update();
