@@ -86,6 +86,12 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Art/RodTarget.png
 
+#begin Assets/Audio/1.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/1.mp3
+
 #begin Assets/Fonts/Font.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

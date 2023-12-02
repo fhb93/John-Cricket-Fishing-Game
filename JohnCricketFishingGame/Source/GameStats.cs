@@ -12,7 +12,7 @@ namespace JohnCricketFishingGame.Source
     // Game statistics and HUD
     public class GameStats
     {
-        public enum CustomerLevel { Kid, Teen, Undergraduate, Mayor, Priest, Bishop, Colonel }
+        public enum CustomerLevel { Kid, Teen, Bachelor, Mayor, Priest, Bishop, Colonel }
         public double countDown { get; private set; }
         public bool IsGameOver { get; private set; }
         public int PlayerScore { get; private set; }
@@ -44,7 +44,7 @@ namespace JohnCricketFishingGame.Source
             //FINAL BALANCING
             //countDownTimes[(int)CustomerLevel.Kid] = 45;
             //countDownTimes[(int)CustomerLevel.Teen] = 40;
-            //countDownTimes[(int)CustomerLevel.Undergraduate] = 35;
+            //countDownTimes[(int)CustomerLevel.Bachelor] = 35;
             //countDownTimes[(int)CustomerLevel.Mayor] = 30;
             //countDownTimes[(int)CustomerLevel.Priest] = 25;
             //countDownTimes[(int)CustomerLevel.Bishop] = 20;
@@ -52,7 +52,7 @@ namespace JohnCricketFishingGame.Source
 
             countDownTimes[(int)CustomerLevel.Kid] = 10;
             countDownTimes[(int)CustomerLevel.Teen] = 9;
-            countDownTimes[(int)CustomerLevel.Undergraduate] = 8;
+            countDownTimes[(int)CustomerLevel.Bachelor] = 8;
             countDownTimes[(int)CustomerLevel.Mayor] = 7;
             countDownTimes[(int)CustomerLevel.Priest] = 6;
             countDownTimes[(int)CustomerLevel.Bishop] = 5;
@@ -65,7 +65,7 @@ namespace JohnCricketFishingGame.Source
             //FINAL BALANCING
             //suspicionPerCustomer[(int)CustomerLevel.Kid] = 9;
             //suspicionPerCustomer[(int)CustomerLevel.Teen] = 9;
-            //suspicionPerCustomer[(int)CustomerLevel.Undergraduate] = 8;
+            //suspicionPerCustomer[(int)CustomerLevel.Bachelor] = 8;
             //suspicionPerCustomer[(int)CustomerLevel.Mayor] = 7;
             //suspicionPerCustomer[(int)CustomerLevel.Priest] = 6;
             //suspicionPerCustomer[(int)CustomerLevel.Bishop] = 5;
@@ -74,7 +74,7 @@ namespace JohnCricketFishingGame.Source
 
             suspicionPerCustomer[(int)CustomerLevel.Kid] = 8;
             suspicionPerCustomer[(int)CustomerLevel.Teen] = 7;
-            suspicionPerCustomer[(int)CustomerLevel.Undergraduate] = 6;
+            suspicionPerCustomer[(int)CustomerLevel.Bachelor] = 6;
             suspicionPerCustomer[(int)CustomerLevel.Mayor] = 5;
             suspicionPerCustomer[(int)CustomerLevel.Priest] = 4;
             suspicionPerCustomer[(int)CustomerLevel.Bishop] = 3;
@@ -89,12 +89,12 @@ namespace JohnCricketFishingGame.Source
         {
             string stopwatchStr = string.Format("{0}:{1}s", _level.ToString(), (int) countDown);
             string suspicionStr = string.Format("{0}/{1}", (int) _suspicion, (int)suspicionPerCustomer[(int)_level]);
-            string scoreStr = string.Format("$ {0}", (int) PlayerScore * 100);
+            string scoreStr = string.Format("$ {0}", (int) PlayerScore * 50);
             Vector2 stopwatchPos = new Vector2(192 / 16f, 8);
             Vector2 suspicionPos = new Vector2(192 / 16f, 16);
-            Vector2 scorePos = new Vector2(192 * 9 / 16f - _spriteFont.MeasureString(scoreStr).X * 0.5f, 8);
+            Vector2 scorePos = new Vector2(192 * 9 / 16f  /* - _spriteFont.MeasureString(scoreStr).X * 0.5f*/, 8);
             
-            Vector2 warningsPos = new Vector2(192 * 13 / 16f - _spriteFont.MeasureString("# # #").X * 0.5f, 8);
+            Vector2 warningsPos = new Vector2(192 * 13 / 16f /*- _spriteFont.MeasureString("# # #").X * 0.5f*/, 8);
 
             sb.DrawString(_spriteFont, stopwatchStr, stopwatchPos, Color.White);
             sb.DrawString(_spriteFont, suspicionStr, suspicionPos, Color.White);
@@ -119,10 +119,16 @@ namespace JohnCricketFishingGame.Source
             }
             else
             {
-                _level++;
-                countDown = countDownTimes[(int)_level];
-                _suspicion = 0;
-               // IsGameOver = true;
+                if(_level < CustomerLevel.Colonel)
+                {
+                    _level++;
+                    countDown = countDownTimes[(int)_level];
+                    _suspicion = 0;
+                }
+                else
+                {
+                    IsGameOver = true;
+                }
             }
         }
 

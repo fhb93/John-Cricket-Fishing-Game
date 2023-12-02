@@ -115,6 +115,8 @@ namespace JohnCricketFishingGame
         {
             _menu.Update(gameTime);
 
+            AudioSystem.Instance.Update();
+
             if(_gameStats.IsGameOver)
             {
                //MainMenu
