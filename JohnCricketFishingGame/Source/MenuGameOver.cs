@@ -13,7 +13,7 @@ namespace JohnCricketFishingGame.Source
         public Label _screenTitle;
         public Label _screenPrompt;
 
-        public MenuGameOver() : base()
+        public MenuGameOver()
         {
             Vector2 titlePos = new Vector2(192 / 2, 160 * 5 / 16);
             _screenTitle = new Label("Game Over", titlePos);

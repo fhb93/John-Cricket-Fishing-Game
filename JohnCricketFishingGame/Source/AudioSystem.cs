@@ -25,18 +25,20 @@ namespace JohnCricketFishingGame.Source
             }
         }
 
+        public enum SongCollection { TitleTheme, MainTheme, GameOver }
+
         private AudioSystem()
         {
             _songs = new SoundEffect[_songsCount];
 
             _songs[0] = Game1.GameContent.Load<SoundEffect>("Assets/Audio/1");
 
-            Play(0);
+            Play(SongCollection.TitleTheme);
         }
 
-        public void Play(int index)
+        public void Play(SongCollection index)
         {
-            SoundEffectInstance se = _songs[index].CreateInstance();
+            SoundEffectInstance se = _songs[(int) index].CreateInstance();
             se.IsLooped = true;
             se.Play();
         }

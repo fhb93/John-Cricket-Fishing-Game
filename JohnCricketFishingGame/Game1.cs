@@ -92,8 +92,9 @@ namespace JohnCricketFishingGame
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _fishCount = 8;
             _menus = new Menu[2];
-            _menus[0] = new Menu();
+            _menus[0] = new MenuTitleScreen();
             _menus[1] = new MenuGameOver();
+
 
             for (int i = 0; i < _fishCount; i++)
             {
