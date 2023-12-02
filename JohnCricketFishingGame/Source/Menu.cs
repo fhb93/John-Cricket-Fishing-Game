@@ -12,11 +12,8 @@ using System.Threading.Tasks;
 
 namespace JohnCricketFishingGame.Source
 {
-    class Menu
+    public class Menu
     {
-        private SpriteSheet _sprite;
-        private AnimatedSprite _animatedSprite;
-        
         public struct Label
         {
             public string Title { get; private set; }
@@ -31,9 +28,10 @@ namespace JohnCricketFishingGame.Source
             }
         }
 
+        private SpriteSheet _sprite;
+        private AnimatedSprite _animatedSprite;
         private Label _title;
         private Label _prompt;
-
         private float _maxTimer;
         private float _timer;
 
@@ -49,7 +47,7 @@ namespace JohnCricketFishingGame.Source
             _maxTimer = 2;
         }
 
-        public void Draw(SpriteBatch sb)
+        public virtual void Draw(SpriteBatch sb)
         {
             sb.Draw(_animatedSprite, new Vector2(192 / 2, 160 / 2), 0f, Vector2.One * 2f);
 
@@ -58,7 +56,7 @@ namespace JohnCricketFishingGame.Source
             sb.DrawString(_prompt.SpriteFont, _prompt.Title, _prompt.Pos, _timer <= 1f ? Color.Transparent : Color.White);
         }
 
-        public void Update(GameTime gt)
+        public virtual void Update(GameTime gt)
         {
             var deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
 

@@ -30,7 +30,7 @@ namespace JohnCricketFishingGame
         private GameInput gameInput;
         private Rod _rod;
         private Effect _effect;
-        private Menu _menu;
+        private Menu[] _menus;
         private int _playerFishID = 0;
         private int _fishCount = 8;
         
@@ -91,7 +91,9 @@ namespace JohnCricketFishingGame
             fishList = new List<Fish>();
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _fishCount = 8;
-            _menu = new Menu();
+            _menus = new Menu[2];
+            _menus[0] = new Menu();
+            _menus[1] = new MenuGameOver();
 
             for (int i = 0; i < _fishCount; i++)
             {
@@ -113,14 +115,16 @@ namespace JohnCricketFishingGame
 
         protected override void Update(GameTime gameTime)
         {
-            _menu.Update(gameTime);
+            _menus[0].Update(gameTime);
 
             AudioSystem.Instance.Update();
 
             if(_gameStats.IsGameOver)
             {
-               //MainMenu
-                Exit();
+                //MainMenu
+                _menus[1].Update(gameTime);
+                _isMenuEnabled = true;
+                //Exit();
             }
             _gameStats.Update(gameTime);
 
@@ -228,7 +232,17 @@ namespace JohnCricketFishingGame
         {
             if(isMenuEnabled == true)
             {
-                _menu.Draw(_spriteBatch);
+                if(_gameStats.IsGameOver == true)
+                {
+                    _menus[1].Draw(_spriteBatch);
+
+                }
+                else
+                {
+                    _menus[0].Draw(_spriteBatch);
+
+                }
+
                 return;
             }
 

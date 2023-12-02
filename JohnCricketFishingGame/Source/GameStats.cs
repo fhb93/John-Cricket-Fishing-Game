@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.BitmapFonts;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,6 @@ namespace JohnCricketFishingGame.Source
         public GameStats() 
         {
             _spriteFont = Game1.GameContent.Load<SpriteFont>("Assets/Fonts/Font");
-            PlayerScore = 0;
             SetChallengeLevel();
             Game1.ScoreListener += (sender, args) => PlayerScore++;
         }
@@ -36,6 +36,8 @@ namespace JohnCricketFishingGame.Source
         public void SetChallengeLevel()
         {
             _level = CustomerLevel.Kid;
+
+            PlayerScore = 0;
 
             _bossWarning = 3;
 
@@ -108,7 +110,14 @@ namespace JohnCricketFishingGame.Source
 
         public void Update(GameTime gt)
         {
-            if(_bossWarning == 0)
+            if (IsGameOver == true && (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed ||
+                Keyboard.GetState().IsKeyDown(Keys.Space)))
+            {
+                IsGameOver = false;
+                SetChallengeLevel();
+            }
+                
+            if (_bossWarning == 0)
             {
                 IsGameOver = true;
             }
