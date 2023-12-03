@@ -36,12 +36,11 @@ namespace JohnCricketFishingGame.Source
         public void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(_sprite, Location, Color.LightGray);
-
             spriteBatch.Draw(_targetSprite, Target, Color.Red * 0.85f);
 
-            spriteBatch.FillRectangle(_validArea, Color.Red * 0.5f);
+            //for Debug 
+            //spriteBatch.FillRectangle(_validArea, Color.Red * 0.5f);
         }
-       
 
         private void MoveRandomly()
         {
