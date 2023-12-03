@@ -132,16 +132,16 @@ namespace JohnCricketFishingGame.Source
 
         public void Update(GameTime gt)
         {
-            KeyboardState state = Keyboard.GetState();
+            //KeyboardState state = Keyboard.GetState();
 
-            if (IsGameOver == true && (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed ||
-                (state.IsKeyDown(Keys.Space) && _oldState.IsKeyUp(Keys.Space))))
-            {
-                IsGameOver = false;
-                return;
-            }
+            //if (IsGameOver == true && (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed ||
+            //    (state.IsKeyDown(Keys.Space) && _oldState.IsKeyUp(Keys.Space))))
+            //{
+            //    IsGameOver = false;
+            //    return;
+            //}
 
-            _oldState = state;
+            //_oldState = state;
 
             if (_bossWarning == 0)
             {
@@ -150,7 +150,7 @@ namespace JohnCricketFishingGame.Source
 
             if (countDown > 0.1f)
             {
-                countDown -= gt.ElapsedGameTime.TotalSeconds * 5f;
+                countDown -= gt.ElapsedGameTime.TotalSeconds * 1.1f;
             }
             else
             {

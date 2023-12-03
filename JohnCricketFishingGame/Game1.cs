@@ -79,6 +79,7 @@ namespace JohnCricketFishingGame
             save = new SaveData();
             _effect = Content.Load<Effect>("Assets/Shaders/crt-lottes-mg");
             SetupEffect();
+            AudioSystem.Instance.Play(AudioSystem.SongCollection.TitleTheme);
 
             SetupGame();
         }
@@ -120,6 +121,8 @@ namespace JohnCricketFishingGame
                 _playerFishID = 0; 
                 UpdateFishStatus(); 
             };
+
+            IsPaused = true;
         }
 
 
@@ -135,7 +138,11 @@ namespace JohnCricketFishingGame
                 currentKeyboardState.IsKeyDown(Keys.P) && _oldState.IsKeyUp(Keys.P))
             {
                 IsPaused = !IsPaused;
-                AudioSystem.Instance.Pause();
+                
+                if (IsPaused)
+                {
+                    AudioSystem.Instance.Pause();
+                }
             }
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed ||
@@ -162,7 +169,7 @@ namespace JohnCricketFishingGame
 
             _oldState = currentKeyboardState;
 
-            if (CurrentGameState == GameState.TitleScreen || CurrentGameState == GameState.Tutorial)
+            if (CurrentGameState < GameState.GameOrPauseScreen)
             {
                 _menus[(int)CurrentGameState].Update(gameTime);
             }
