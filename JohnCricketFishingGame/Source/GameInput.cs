@@ -21,7 +21,12 @@ namespace JohnCricketFishingGame.Source
             
         }
 
-        public Vector2 HandleMoveInput(Keys key)
+        /// <summary>
+        /// Only used for selected fish movement
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public Vector2 HandleInput(Keys key)
         {
             switch (key)
             {
@@ -42,6 +47,6 @@ namespace JohnCricketFishingGame.Source
             }
         }
 
-       
+
     }
 }

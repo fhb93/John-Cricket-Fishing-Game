@@ -13,6 +13,7 @@ namespace JohnCricketFishingGame.Source
         private SoundEffect[] _songs;
         private int _songsCount = 1;
         private static AudioSystem _instance;
+        private SoundEffectInstance _sound;
         public static AudioSystem Instance
         {
             get
@@ -38,14 +39,22 @@ namespace JohnCricketFishingGame.Source
 
         public void Play(SongCollection index)
         {
-            SoundEffectInstance se = _songs[(int) index].CreateInstance();
-            se.IsLooped = true;
-            se.Play();
+            _sound = _songs[(int) index].CreateInstance();
+            _sound.IsLooped = true;
+            _sound.Play();
+        }
+
+        public void Pause()
+        {
+            _sound.Pause();
         }
 
         public void Update()
         {
-            
+            if(_sound.State == SoundState.Paused)
+            {
+                _sound.Play();
+            }
         }
     }
 }

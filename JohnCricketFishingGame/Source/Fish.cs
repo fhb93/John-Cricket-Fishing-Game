@@ -39,7 +39,8 @@ namespace JohnCricketFishingGame.Source
         //public Vector2 Location => _cornerPosition - Vector2.UnitX * _boundingBox.Width * 0.5f -
         //  Vector2.UnitY * _boundingBox.Height * 0.5f;
         public Vector2 Location { get; private set; }
-          
+        public static List<Fish> fishList = new List<Fish>();
+
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime = null)
         {
@@ -97,11 +98,11 @@ namespace JohnCricketFishingGame.Source
         {
             //Game1.fishList.RemoveAt(index);
 
-            Game1.fishList[index]._isCaught = true;
+            fishList[index]._isCaught = true;
 
-            for (int i = 0; i < Game1.fishList.Count; i++)
+            for (int i = 0; i < fishList.Count; i++)
             {
-                Game1.fishList[i].UpdateFishActivation(false);
+                fishList[i].UpdateFishActivation(false);
             }
         }
 

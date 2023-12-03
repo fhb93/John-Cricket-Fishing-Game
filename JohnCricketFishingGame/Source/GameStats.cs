@@ -17,6 +17,7 @@ namespace JohnCricketFishingGame.Source
         public double countDown { get; private set; }
         public bool IsGameOver { get; private set; }
         public int PlayerScore { get; private set; }
+        public static int HighScore { get; private set; }
 
         private SpriteFont _spriteFont;
         private CustomerLevel _level;
@@ -29,6 +30,7 @@ namespace JohnCricketFishingGame.Source
         public GameStats() 
         {
             _spriteFont = Game1.GameContent.Load<SpriteFont>("Assets/Fonts/Font");
+            PlayerScore = 500;
             SetChallengeLevel();
             Game1.ScoreListener += (sender, args) => PlayerScore++;
         }
@@ -36,6 +38,14 @@ namespace JohnCricketFishingGame.Source
         public void SetChallengeLevel()
         {
             _level = CustomerLevel.Kid;
+
+            if(PlayerScore > 0)
+            {
+                if(PlayerScore > HighScore)
+                {
+                    HighScore = PlayerScore;
+                }
+            }
 
             PlayerScore = 0;
 
@@ -108,20 +118,9 @@ namespace JohnCricketFishingGame.Source
             }
         }
 
-        private float _timer;
-        private float _timerMax = 4f;
 
         public void Update(GameTime gt)
         {
-            if(Game1.IsPaused)
-            {
-                return;
-            }
-            //if (IsGameOver == true && _timer >= _timerMax)
-            //{
-            //    _timer = 0f;
-            //}
-
             if (IsGameOver == true && (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed ||
                 Keyboard.GetState().IsKeyDown(Keys.Space)))
             {
@@ -137,7 +136,7 @@ namespace JohnCricketFishingGame.Source
 
             if (countDown > 0.1f)
             {
-                countDown -= gt.ElapsedGameTime.TotalSeconds * 10;
+                countDown -= gt.ElapsedGameTime.TotalSeconds * 1.2f;
             }
             else
             {

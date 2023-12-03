@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
+using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
 using MonoGame.Extended.Screens;
 using MonoGame.Extended.Timers;
@@ -25,7 +26,6 @@ namespace JohnCricketFishingGame
         public static GraphicsDeviceManager GameGraphics;
         
         //Game stuff
-        public static List<Fish> fishList;
         private GameStats _gameStats;
         private GameInput gameInput;
         private Rod _rod;
@@ -42,10 +42,12 @@ namespace JohnCricketFishingGame
         private int ScreenHeight = 768;
         // bad/shortcut solution for one shot event input
         private bool _isOneShotInput = false;
-        private bool _isMenuEnabled = true;
+        private KeyboardState _oldState;
 
         public static EventHandler<int> ScoreListener;
-        public static bool IsPaused { get; private set; }
+        public static bool IsPaused;
+        public enum GameState { TitleScreen, GameOver, GameOrPauseScreen }
+        public GameState CurrentGameState = GameState.TitleScreen;
 
         public Game1()
         {
@@ -79,67 +81,103 @@ namespace JohnCricketFishingGame
 
         protected override void LoadContent()
         {
-            Setup();
+            _effect = Content.Load<Effect>("Assets/Shaders/crt-lottes-mg");
+            SetupEffect();
+
+            SetupGame();
         }
 
        
-        private void Setup()
+        private void SetupGame()
         {
+            Fish.fishList.Clear();
+
             _gameStats = new GameStats();
 
             //_gameStats.SetChallengeLevel();
 
-            fishList = new List<Fish>();
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _fishCount = 8;
-            _menus = new Menu[2];
-            _menus[0] = new MenuTitleScreen();
-            _menus[1] = new MenuGameOver();
+            _menus = new Menu[3];
+            _menus[(int) GameState.TitleScreen] = new MenuTitleScreen();
+            _menus[(int) GameState.GameOver] = new MenuGameOver();
+            _menus[(int) GameState.GameOrPauseScreen] = new Menu();
 
 
             for (int i = 0; i < _fishCount; i++)
             {
-                fishList.Add(new Fish(i));
+                Fish.fishList.Add(new Fish(i));
             }
 
-            _effect = Content.Load<Effect>("Assets/Shaders/crt-lottes-mg");
             _rod = new Rod();
-
-            SetupEffect();
 
             UpdateFishStatus();
 
-            gameInput.keyboardListener.KeyPressed += (sender, args) => destination = gameInput.HandleMoveInput(args.Key); //{ Window.Title = $"Key {args.Key} Pressed"; };
+            gameInput.keyboardListener.KeyPressed += (sender, args) => destination = gameInput.HandleInput(args.Key); //{ Window.Title = $"Key {args.Key} Pressed"; };
             gameInput.gamePadListener.ButtonDown += (sender, args) => { Window.Title = $"Key {args.Button} Down"; };
             ScoreListener += (sender, args) => { _rod.ResetRod(); };
         }
 
 
         protected override void Update(GameTime gameTime)
-        { 
-            _menus[0].Update(gameTime);
+        {
+            KeyboardState currentKeyboardState = Keyboard.GetState();
+
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
+                Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
+
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Start == ButtonState.Pressed ||
+                currentKeyboardState.IsKeyDown(Keys.P) && _oldState.IsKeyUp(Keys.P))
+            {
+                IsPaused = !IsPaused;
+                AudioSystem.Instance.Pause();
+            }
+
+            if (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed ||
+                currentKeyboardState.IsKeyDown(Keys.Space) && _oldState.IsKeyUp(Keys.Space))
+            {
+                if(CurrentGameState == GameState.TitleScreen)
+                {
+                    IsPaused = false;
+                    CurrentGameState = GameState.GameOrPauseScreen;
+                    SetupGame();
+                }
+                else if(CurrentGameState == GameState.GameOver)
+                {
+                    CurrentGameState = GameState.TitleScreen;
+                    IsPaused = true;
+                }
+            }
+
+            _oldState = currentKeyboardState;
+
+            if (CurrentGameState == GameState.TitleScreen)
+            {
+                _menus[(int)CurrentGameState].Update(gameTime);
+            }
+
+            if (IsPaused == true)
+            {
+                return;
+            }
 
             AudioSystem.Instance.Update();
 
             if(_gameStats.IsGameOver)
             {
-                //MainMenu
-                _menus[1].Update(gameTime);
-                _isMenuEnabled = true;
-                //Exit();
+                CurrentGameState = GameState.GameOver;
+                _menus[(int) CurrentGameState].Update(gameTime);
             }
-            _gameStats.Update(gameTime);
 
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || 
-                Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            _gameStats.Update(gameTime);
 
             _rod.Update(gameTime);
 
             // Only move fish if primary button is being hold, below code changes highlit fish according to player input
             if (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Space))
             {
-                // TODO: add customer awareness here
+                //Customer awareness here
                 _gameStats.CustomerSuspicion(gameTime);
             }
             else
@@ -174,12 +212,12 @@ namespace JohnCricketFishingGame
             }
             
 
-            for (int i = 0; i < fishList.Count; i++)
+            for (int i = 0; i < Fish.fishList.Count; i++)
             {
-                fishList[i].Update(gameTime);
+                Fish.fishList[i].Update(gameTime);
             }
-                
-            fishList[_playerFishID].Move(destination * gameTime.GetElapsedSeconds());
+
+            Fish.fishList[_playerFishID].Move(destination * gameTime.GetElapsedSeconds());
 
 
             base.Update(gameTime);
@@ -198,14 +236,8 @@ namespace JohnCricketFishingGame
             GraphicsDevice.Clear(Color.Black);
 
             _spriteBatch.Begin();
-
-            if(GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed ||
-                Keyboard.GetState().IsKeyDown(Keys.Space)) 
-            {
-                _isMenuEnabled = false;
-            }
-
-            DrawGame(_isMenuEnabled);
+            
+            DrawGame();
 
             _spriteBatch.End();
 
@@ -230,27 +262,17 @@ namespace JohnCricketFishingGame
             base.Draw(gameTime);
         }
 
-        private void DrawGame(bool isMenuEnabled)
+        private void DrawGame()
         {
-            if(isMenuEnabled == true)
+            if (CurrentGameState < GameState.GameOrPauseScreen)
             {
-                if(_gameStats.IsGameOver == true)
-                {
-                    _menus[1].Draw(_spriteBatch);
-
-                }
-                else
-                {
-                    _menus[0].Draw(_spriteBatch);
-
-                }
-
+                _menus[(int)CurrentGameState].Draw(_spriteBatch);
                 return;
             }
 
-            for (int i = 0; i < fishList.Count; i++)
+            for (int i = 0; i < Fish.fishList.Count; i++)
             {
-                fishList[i].Draw(_spriteBatch);
+                Fish.fishList[i].Draw(_spriteBatch);
             }
 
             _rod.Draw(_spriteBatch);
@@ -284,17 +306,17 @@ namespace JohnCricketFishingGame
 
         private void UpdateFishStatus()
         {
-            for(int i = 0; i < fishList.Count; i++)
+            for(int i = 0; i < Fish.fishList.Count; i++)
             {
-                fishList[i].UpdateFishActivation(false);
+                Fish.fishList[i].UpdateFishActivation(false);
             }
 
-            fishList[_playerFishID].UpdateFishActivation(true);
+            Fish.fishList[_playerFishID].UpdateFishActivation(true);
         }
 
         private void ToggleFishControl(Keys key)
         {
-            _fishCount = fishList.Count;
+            _fishCount = Fish.fishList.Count;
 
             if (_isOneShotInput == true)
             {

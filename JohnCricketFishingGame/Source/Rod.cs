@@ -18,6 +18,12 @@ namespace JohnCricketFishingGame.Source
         private double maxTimer = 5;
         private const int startingPatience = 12;
         private RectangleF _bounds;
+        private RectangleF _validArea;
+        private float _minX;
+        private float _maxX;
+        private float _minY;
+        private float _maxY;
+
         //patience acts like the speed of fishing rod and also is the number of turns per round
         // if it reaches 1, the a new round starts with a more difficult customer
         // 7 customers: Kid; Teen; Bachelor holder; Mayor; Priest; Bishop; Colonel, the fearsome Landowner
@@ -32,14 +38,17 @@ namespace JohnCricketFishingGame.Source
             spriteBatch.Draw(_sprite, Location, Color.LightGray);
 
             spriteBatch.Draw(_targetSprite, Target, Color.Red * 0.85f);
+
+            spriteBatch.FillRectangle(_validArea, Color.Red * 0.5f);
         }
        
 
         private void MoveRandomly()
         {
-            Vector2 newDest = new Vector2(_random.NextSingle(48, 144), _random.NextSingle(80, 100));
+            Vector2 newDest = new Vector2(_random.NextSingle(_minX, _maxX), _random.NextSingle(_minY, _maxY));
+               
             _tweener.TweenTo(target: this, expression: player => player.Location, toValue: newDest, patience, 0.5f)
-                .Easing(EasingFunctions.ElasticInOut); 
+                    .Easing(EasingFunctions.ElasticInOut);
         }
 
         private bool _flag = false;
@@ -68,13 +77,13 @@ namespace JohnCricketFishingGame.Source
                 return;
             }
 
-            for(int i = 0; i < Game1.fishList.Count; i++)
+            for(int i = 0; i < Fish.fishList.Count; i++)
             {
-                if (_bounds.Contains(Game1.fishList[i].Target) && Game1.fishList[i].IsEnabled)
-                { 
+                if (_bounds.Contains(Fish.fishList[i].Target) && Fish.fishList[i].IsEnabled)
+                {
                     // i is the fish we want to remove
                     Game1.ScoreListener.Invoke(this, i);
-                    Game1.fishList[i].RemoveFish(i);
+                    Fish.fishList[i].RemoveFish(i);
                     break;
                 }
             }
@@ -86,6 +95,11 @@ namespace JohnCricketFishingGame.Source
             _random = new FastRandom();
             _targetSprite = Game1.GameContent.Load<Texture2D>("Assets/Art/RodTarget");
             _sprite = Game1.GameContent.Load<Texture2D>("Assets/Art/Rod");
+            _validArea = new Rectangle(25, 20, 145, 60);
+            _minX = _validArea.X;
+            _maxX = _validArea.X + _validArea.Width;
+            _minY = _validArea.Y;
+            _maxY = _validArea.Y + _validArea.Height;
             ResetRod();
             Game1.ScoreListener += (sender, args) => ResetRod();
         }
@@ -96,6 +110,7 @@ namespace JohnCricketFishingGame.Source
             _targetSize = new Size2(7, 7);
             _bounds = new RectangleF(Target, _targetSize);
             patience = startingPatience;
+
         }
     }
 }
