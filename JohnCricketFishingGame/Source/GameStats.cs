@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static JohnCricketFishingGame.Game1;
 
 namespace JohnCricketFishingGame.Source
 {
@@ -16,7 +17,7 @@ namespace JohnCricketFishingGame.Source
         public enum CustomerLevel { Kid, Teen, Bachelor, Mayor, Priest, Bishop, Colonel }
         public double countDown { get; private set; }
         public bool IsGameOver { get; private set; }
-        public int PlayerScore { get; private set; }
+        public static int PlayerScore { get; private set; }
         public static int HighScore { get; private set; }
 
         private SpriteFont _spriteFont;
@@ -26,26 +27,36 @@ namespace JohnCricketFishingGame.Source
         private double _suspicion;
         private double[] suspicionPerCustomer;
         private int _bossWarning = 3;
+        private KeyboardState _oldState;
+
 
         public GameStats() 
         {
             _spriteFont = Game1.GameContent.Load<SpriteFont>("Assets/Fonts/Font");
-            PlayerScore = 500;
             SetChallengeLevel();
             Game1.ScoreListener += (sender, args) => PlayerScore++;
+        }
+
+        public void LoadHiScore(int score)
+        {
+            HighScore = score;
         }
 
         public void SetChallengeLevel()
         {
             _level = CustomerLevel.Kid;
 
-            if(PlayerScore > 0)
+
+            if (PlayerScore > 0)
             {
                 if(PlayerScore > HighScore)
                 {
                     HighScore = PlayerScore;
+                    Game1.save.SaveToDevice();
                 }
             }
+
+            LoadHiScore(save.LoadFromDevice());
 
             PlayerScore = 0;
 
@@ -101,7 +112,7 @@ namespace JohnCricketFishingGame.Source
         {
             string stopwatchStr = string.Format("{0}:{1}s", _level.ToString(), (int) countDown);
             string suspicionStr = string.Format("{0}/{1}", (int) _suspicion, (int)suspicionPerCustomer[(int)_level]);
-            string scoreStr = string.Format("$ {0}", (int) PlayerScore * 50);
+            string scoreStr = string.Format("$ {0}", PlayerScore);
             Vector2 stopwatchPos = new Vector2(192 / 16f, 8);
             Vector2 suspicionPos = new Vector2(192 / 16f, 16);
             Vector2 scorePos = new Vector2(192 * 9 / 16f  /* - _spriteFont.MeasureString(scoreStr).X * 0.5f*/, 8);
@@ -121,13 +132,16 @@ namespace JohnCricketFishingGame.Source
 
         public void Update(GameTime gt)
         {
+            KeyboardState state = Keyboard.GetState();
+
             if (IsGameOver == true && (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed ||
-                Keyboard.GetState().IsKeyDown(Keys.Space)))
+                (state.IsKeyDown(Keys.Space) && _oldState.IsKeyUp(Keys.Space))))
             {
                 IsGameOver = false;
-                ResetGame();
-
+                return;
             }
+
+            _oldState = state;
 
             if (_bossWarning == 0)
             {
@@ -136,7 +150,7 @@ namespace JohnCricketFishingGame.Source
 
             if (countDown > 0.1f)
             {
-                countDown -= gt.ElapsedGameTime.TotalSeconds * 1.2f;
+                countDown -= gt.ElapsedGameTime.TotalSeconds * 5f;
             }
             else
             {
@@ -149,6 +163,7 @@ namespace JohnCricketFishingGame.Source
                 else
                 {
                     IsGameOver = true;
+                    HighScore = HighScore < PlayerScore ? PlayerScore : (HighScore + 0);
                 }
             }
         }
@@ -168,7 +183,13 @@ namespace JohnCricketFishingGame.Source
 
         public void ResetGame()
         {
+            if (HighScore > Game1.save.LoadFromDevice())
+            {
+                Game1.save.SaveToDevice();
+            }
+
             SetChallengeLevel();
+
             IsGameOver = false;
         }
 

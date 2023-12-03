@@ -4,15 +4,8 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
-using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
-using MonoGame.Extended.Screens;
-using MonoGame.Extended.Timers;
-using MonoGame.Extended.Tweening;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using System.Text;
 
 namespace JohnCricketFishingGame
 {
@@ -46,8 +39,9 @@ namespace JohnCricketFishingGame
 
         public static EventHandler<int> ScoreListener;
         public static bool IsPaused;
-        public enum GameState { TitleScreen, GameOver, GameOrPauseScreen }
+        public enum GameState { TitleScreen, Tutorial, GameOver, GameOrPauseScreen }
         public GameState CurrentGameState = GameState.TitleScreen;
+        public static SaveData save;
 
         public Game1()
         {
@@ -79,15 +73,18 @@ namespace JohnCricketFishingGame
             base.Initialize();
         }
 
+        
         protected override void LoadContent()
         {
+            save = new SaveData();
             _effect = Content.Load<Effect>("Assets/Shaders/crt-lottes-mg");
             SetupEffect();
 
             SetupGame();
         }
 
-       
+
+
         private void SetupGame()
         {
             Fish.fishList.Clear();
@@ -98,10 +95,12 @@ namespace JohnCricketFishingGame
 
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _fishCount = 8;
-            _menus = new Menu[3];
+            _menus = new Menu[4];
             _menus[(int) GameState.TitleScreen] = new MenuTitleScreen();
+            _menus[(int) GameState.Tutorial] = new MenuTutorial();
             _menus[(int) GameState.GameOver] = new MenuGameOver();
             _menus[(int) GameState.GameOrPauseScreen] = new Menu();
+
 
 
             for (int i = 0; i < _fishCount; i++)
@@ -115,7 +114,12 @@ namespace JohnCricketFishingGame
 
             gameInput.keyboardListener.KeyPressed += (sender, args) => destination = gameInput.HandleInput(args.Key); //{ Window.Title = $"Key {args.Key} Pressed"; };
             gameInput.gamePadListener.ButtonDown += (sender, args) => { Window.Title = $"Key {args.Button} Down"; };
-            ScoreListener += (sender, args) => { _rod.ResetRod(); };
+            ScoreListener += (sender, args) => 
+            { 
+                _rod.ResetRod(); 
+                _playerFishID = 0; 
+                UpdateFishStatus(); 
+            };
         }
 
 
@@ -139,20 +143,26 @@ namespace JohnCricketFishingGame
             {
                 if(CurrentGameState == GameState.TitleScreen)
                 {
+                    SetupGame();
+                    CurrentGameState = GameState.Tutorial;
+                }
+                else if(CurrentGameState == GameState.Tutorial)
+                {
                     IsPaused = false;
                     CurrentGameState = GameState.GameOrPauseScreen;
-                    SetupGame();
                 }
                 else if(CurrentGameState == GameState.GameOver)
                 {
                     CurrentGameState = GameState.TitleScreen;
                     IsPaused = true;
+                    _gameStats.ResetGame();
+                    SetupGame();
                 }
             }
 
             _oldState = currentKeyboardState;
 
-            if (CurrentGameState == GameState.TitleScreen)
+            if (CurrentGameState == GameState.TitleScreen || CurrentGameState == GameState.Tutorial)
             {
                 _menus[(int)CurrentGameState].Update(gameTime);
             }

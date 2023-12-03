@@ -19,8 +19,6 @@ namespace JohnCricketFishingGame.Source
         private Label _title;
         private Label _prompt;
         private Label _hiScore;
-        private float _maxTimer;
-        private float _timer;
 
         public MenuTitleScreen()
         {
@@ -29,11 +27,12 @@ namespace JohnCricketFishingGame.Source
             _animatedSprite.Color = Color.LightGray;
             _animatedSprite.Play("menu");
 
-            _title = new Label("John Cricket's\nAmazing Game!!", new Vector2(192 / 2, 160f * 1 / 16));
-            _hiScore = new Label($"HI-SCORE: {GameStats.HighScore}", new Vector2(192 / 2, 160 * 3 / 16));
+            _title = new Label("John Cricket's\nAmazing Game!!", new Vector2(192 / 2, 160f * 2 / 16));
+            _hiScore = new Label($"HI-SCORE: {GameStats.HighScore}", new Vector2(192 / 2, 160 * 13 / 16));
             _prompt = new Label("Press Space", new Vector2(192 / 2, 160f * 14 / 16));
-            _maxTimer = 2;
+            maxTimer = 2;
         }
+
 
         public override void Draw(SpriteBatch sb)
         {
@@ -43,21 +42,15 @@ namespace JohnCricketFishingGame.Source
 
             sb.DrawString(_hiScore.SpriteFont, _hiScore.Title, _hiScore.Pos, Color.White);
 
-            sb.DrawString(_prompt.SpriteFont, _prompt.Title, _prompt.Pos, _timer <= 1f ? Color.Transparent : Color.White);
+            sb.DrawString(_prompt.SpriteFont, _prompt.Title, _prompt.Pos, timer <= 1f ? Color.Transparent : Color.White);
 
         }
 
         public override void Update(GameTime gt)
         {
+            
+            base.Update(gt);
             var deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
-
-            _timer += deltaTime;
-
-            if(_timer > _maxTimer)
-            {
-                _timer = 0f;
-            }
-
             _animatedSprite.Update(deltaTime);
         }
     }

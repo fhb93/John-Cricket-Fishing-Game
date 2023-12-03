@@ -15,9 +15,19 @@ namespace JohnCricketFishingGame.Source
             {
                 SpriteFont = Game1.GameContent.Load<SpriteFont>("Assets/Fonts/Font");
                 Title = str;
-                Pos = pos - Vector2.UnitX * SpriteFont.MeasureString(Title).X * 0.5f;
+                Pos = pos - Vector2.UnitX * SpriteFont.MeasureString(Title).X * 0.5f 
+                    - Vector2.UnitY * SpriteFont.MeasureString(Title).Y * 0.5f;
+            }
+
+            public void MoveTo(Vector2 dest)
+            {
+                Pos = dest;
             }
         }
+
+        protected float maxTimer;
+        protected float timer;
+
 
         public virtual void Draw(SpriteBatch sb)
         {
@@ -26,7 +36,14 @@ namespace JohnCricketFishingGame.Source
 
         public virtual void Update(GameTime gt)
         {
+            var deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
 
+            timer += deltaTime;
+
+            if (timer > maxTimer)
+            {
+                timer = 0f;
+            }
         }
     }
 }
