@@ -119,15 +119,16 @@ namespace JohnCricketFishingGame.Source
 
         }
 
-        // HUD
+        /// <summary>
+        /// Rendering HUD here
+        /// </summary>
+        /// <param name="sb"></param>
         public void Draw(SpriteBatch sb)
         {
             string stopwatchStr = string.Format("{0}:{1}s", _level.ToString(), (int) countDown);
-            string suspicionStr = string.Format("{0}/{1}", (int) _suspicion, (int)suspicionPerCustomer[(int)_level]);
             string scoreStr = string.Format("$ {0}", PlayerScore);
             Vector2 stopwatchPos = new Vector2(192 / 16f, 8);
-            Vector2 scorePos = new Vector2(192 * 9 / 16f  /* - _spriteFont.MeasureString(scoreStr).X * 0.5f*/, 8);
-            
+            Vector2 scorePos = new Vector2(192 * 9 / 16f, 8);
            
             //HUD
             sb.DrawString(_spriteFont, stopwatchStr, stopwatchPos, Color.White);
@@ -176,16 +177,6 @@ namespace JohnCricketFishingGame.Source
                 _suspicionAnim.Color = Color.White;
                 _suspicionAnim.Update(deltaTime);
             }
-            //KeyboardState state = Keyboard.GetState();
-
-            //if (IsGameOver == true && (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed ||
-            //    (state.IsKeyDown(Keys.Space) && _oldState.IsKeyUp(Keys.Space))))
-            //{
-            //    IsGameOver = false;
-            //    return;
-            //}
-
-            //_oldState = state;
 
             if (_bossWarning == 0)
             {

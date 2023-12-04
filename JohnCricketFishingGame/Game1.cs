@@ -143,6 +143,7 @@ namespace JohnCricketFishingGame
                 if(CurrentGameState == GameState.TitleScreen)
                 {
                     SetupGame();
+                    MenuTitleScreen.DoOnceIsSet = true;
                     CurrentGameState = GameState.Tutorial;
                 }
                 else if(CurrentGameState == GameState.Tutorial)

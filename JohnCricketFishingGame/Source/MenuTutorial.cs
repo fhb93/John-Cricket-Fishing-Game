@@ -12,7 +12,8 @@ namespace JohnCricketFishingGame.Source
             "MOVE A FISH:\n" +
             "Hold SPACE while\nWASD or Arrow Keys\n\n" +
             "PAUSE / UNPAUSE: P\n\n" +
-            "SKIP INTRO: SPACE";
+            "SKIP INTRO: SPACE\n\n" +
+            "QUIT: ESC";
 
         private string _conceptContents =
             "It's the Feast of\n\n" +
