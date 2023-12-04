@@ -1,13 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
 using MonoGame.Extended.BitmapFonts;
+using MonoGame.Extended.Content;
+using MonoGame.Extended.Serialization;
+using MonoGame.Extended.Sprites;
+using MonoGame.Extended.TextureAtlases;
+using MonoGame.Extended.Timers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static JohnCricketFishingGame.Game1;
 
 namespace JohnCricketFishingGame.Source
 {
@@ -26,7 +31,11 @@ namespace JohnCricketFishingGame.Source
 
         private double _suspicion;
         private double[] suspicionPerCustomer;
-        private int _bossWarning = 3;
+        private SpriteSheet _suspicionSprite;
+        private AnimatedSprite _suspicionAnim;
+        private int _bossWarning;
+        private int _maxWarnings = 3;
+        private Texture2D _bossText;
         private KeyboardState _oldState;
 
 
@@ -34,6 +43,9 @@ namespace JohnCricketFishingGame.Source
         {
             _spriteFont = Game1.GameContent.Load<SpriteFont>("Assets/Fonts/Font");
             SetChallengeLevel();
+            _bossText = Game1.GameContent.Load<Texture2D>("Assets/Art/Notice");
+            _suspicionSprite = Game1.GameContent.Load<SpriteSheet>("Assets/Art/Animation/Eye.sf", new JsonContentLoader());
+            _suspicionAnim = new AnimatedSprite(_suspicionSprite, "blink");
             Game1.ScoreListener += (sender, args) => PlayerScore++;
         }
 
@@ -56,11 +68,11 @@ namespace JohnCricketFishingGame.Source
                 }
             }
 
-            LoadHiScore(save.LoadFromDevice());
+            LoadHiScore(Game1.save.LoadFromDevice());
 
             PlayerScore = 0;
 
-            _bossWarning = 3;
+            _bossWarning = _maxWarnings;
 
             countDownTimes = new double[7];
 
@@ -114,24 +126,56 @@ namespace JohnCricketFishingGame.Source
             string suspicionStr = string.Format("{0}/{1}", (int) _suspicion, (int)suspicionPerCustomer[(int)_level]);
             string scoreStr = string.Format("$ {0}", PlayerScore);
             Vector2 stopwatchPos = new Vector2(192 / 16f, 8);
-            Vector2 suspicionPos = new Vector2(192 / 16f, 16);
             Vector2 scorePos = new Vector2(192 * 9 / 16f  /* - _spriteFont.MeasureString(scoreStr).X * 0.5f*/, 8);
             
-            Vector2 warningsPos = new Vector2(192 * 13 / 16f /*- _spriteFont.MeasureString("# # #").X * 0.5f*/, 8);
-
+           
+            //HUD
             sb.DrawString(_spriteFont, stopwatchStr, stopwatchPos, Color.White);
-            sb.DrawString(_spriteFont, suspicionStr, suspicionPos, Color.White);
             sb.DrawString(_spriteFont, scoreStr, scorePos, Color.White);
-            
-            for(int i = 0; i < _bossWarning; i++)
+            DrawNotice(sb);
+            DrawSuspicion(sb);
+        }
+
+        private void DrawSuspicion(SpriteBatch sb)
+        {
+            Vector2 suspicionPos = new Vector2(192 / 16f, 16);
+
+            Vector2 suspicionEyePos = new Vector2(192 / 16f + 4, 16 + 4);
+
+            for (int i = 0; i < (int)suspicionPerCustomer[(int)_level]; i++)
             {
-                sb.DrawString(_spriteFont, "# ", warningsPos + Vector2.UnitX * 8 * i, Color.White);
+                Vector2 Location = suspicionPos + Vector2.UnitX * 16 + Vector2.UnitX * i * 6;
+                Size2 size = new Size2(6, 8);
+                sb.FillRectangle(new RectangleF(Location, size), (i + 1) <= _suspicion ? Color.Red * 0.5f : Color.Gold);
+            }
+
+            sb.Draw(_suspicionAnim, suspicionEyePos);
+        }
+
+        private void DrawNotice(SpriteBatch sb)
+        {
+            Vector2 warningsPos = new Vector2(192 * 13 / 16f, 8);
+
+            for (int i = 0; i < _maxWarnings; i++)
+            {
+                sb.Draw(_bossText, warningsPos + Vector2.UnitX * 10 * i, (i + 1) <= _bossWarning ? Color.Gold : Color.Red * 0.5f);
             }
         }
 
-
         public void Update(GameTime gt)
         {
+            var deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
+
+            if(_suspicion > (int)(suspicionPerCustomer[(int)_level] * 0.75f))
+            {
+                _suspicionAnim.Color = Color.Red;
+                _suspicionAnim.TextureRegion = new TextureRegion2D(_suspicionSprite.TextureAtlas.Texture, new Rectangle(0, 0, 8, 8));
+            }
+            else
+            {
+                _suspicionAnim.Color = Color.White;
+                _suspicionAnim.Update(deltaTime);
+            }
             //KeyboardState state = Keyboard.GetState();
 
             //if (IsGameOver == true && (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed ||
@@ -166,7 +210,12 @@ namespace JohnCricketFishingGame.Source
                 else
                 {
                     IsGameOver = true;
-                    HighScore = HighScore < PlayerScore ? PlayerScore : (HighScore + 0);
+                    
+                    if(HighScore < PlayerScore)
+                    {
+                        HighScore = PlayerScore;
+                        MenuGameOver.NewRecord = true;
+                    }
                 }
             }
         }

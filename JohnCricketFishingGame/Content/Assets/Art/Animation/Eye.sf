@@ -1,0 +1,13 @@
+{
+  "textureAtlas": {
+    "texture": "../Eye.png",
+    "regionWidth": 8,
+    "regionHeight": 8
+  },
+  "cycles": {
+    "blink": {
+      "frames": [0,1],
+      "isLooping": true
+    }
+  }
+}
