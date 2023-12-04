@@ -80,11 +80,10 @@ namespace JohnCricketFishingGame
             _effect = Content.Load<Effect>("Assets/Shaders/crt-lottes-mg");
             SetupEffect();
             AudioSystem.Instance.Play(AudioSystem.SongCollection.TitleTheme);
-
             SetupGame();
         }
 
-
+       
 
         private void SetupGame()
         {
@@ -102,16 +101,9 @@ namespace JohnCricketFishingGame
             _menus[(int) GameState.GameOver] = new MenuGameOver();
             _menus[(int) GameState.GameOrPauseScreen] = new Menu();
 
-
-
-            for (int i = 0; i < _fishCount; i++)
-            {
-                Fish.fishList.Add(new Fish(i));
-            }
-
             _rod = new Rod();
 
-            UpdateFishStatus();
+            Fish.AddFishs(_fishCount);
 
             gameInput.keyboardListener.KeyPressed += (sender, args) => destination = gameInput.HandleInput(args.Key); //{ Window.Title = $"Key {args.Key} Pressed"; };
             gameInput.gamePadListener.ButtonDown += (sender, args) => { Window.Title = $"Key {args.Button} Down"; };
@@ -119,7 +111,7 @@ namespace JohnCricketFishingGame
             { 
                 _rod.ResetRod(); 
                 _playerFishID = 0; 
-                UpdateFishStatus(); 
+                Fish.UpdateFishStatus(); 
             };
 
             IsPaused = true;
@@ -321,19 +313,16 @@ namespace JohnCricketFishingGame
             _effect.Parameters["outputSize"]?.SetValue(outSize);
         }
 
-        private void UpdateFishStatus()
-        {
-            for(int i = 0; i < Fish.fishList.Count; i++)
-            {
-                Fish.fishList[i].UpdateFishActivation(false);
-            }
-
-            Fish.fishList[_playerFishID].UpdateFishActivation(true);
-        }
-
         private void ToggleFishControl(Keys key)
         {
             _fishCount = Fish.fishList.Count;
+            
+            if(_fishCount == 6)
+            {
+                Console.WriteLine();
+            }
+
+            int fishMidleIndex = ((_fishCount - 1) / 2);
 
             if (_isOneShotInput == true)
             {
@@ -347,32 +336,28 @@ namespace JohnCricketFishingGame
                 case Keys.Up:
                     if (_playerFishID > ((_fishCount - 1) / 2))
                     {
-                        _playerFishID -= 4;
-                        UpdateFishStatus();
+                        _playerFishID -= fishMidleIndex;
                     }
                     break;
                 case Keys.Left:
 
-                    if (_playerFishID > 0 && _playerFishID != (_fishCount / 2))
+                    if (_playerFishID > 0 /*&& _playerFishID != (_fishCount / 2)*/)
                     {
                         _playerFishID--;
-                        UpdateFishStatus();
                     }
                     break;
                 case Keys.Down:
                     if (_playerFishID <= ((_fishCount - 1) / 2))
                     {
-                        _playerFishID += 4;
-                        UpdateFishStatus();
+                        _playerFishID += fishMidleIndex;
                     }
 
                     break;
                 case Keys.Right:
 
-                    if (_playerFishID < (_fishCount - 1) && _playerFishID != ((_fishCount - 1) / 2))
+                    if (_playerFishID < (_fishCount - 1)/* && _playerFishID != ((_fishCount - 1) / 2)*/)
                     {
                         _playerFishID++;
-                        UpdateFishStatus();
                     }
 
                     break;
@@ -380,6 +365,8 @@ namespace JohnCricketFishingGame
                     break;
 
             }
+
+            Fish.UpdateFishStatus(_playerFishID);
         }
 
     }

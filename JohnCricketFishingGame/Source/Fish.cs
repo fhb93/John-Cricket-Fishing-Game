@@ -28,6 +28,8 @@ namespace JohnCricketFishingGame.Source
         private Color playfieldColor;
 
         private float _scale;
+        private float _maxTimer;
+        private float _timer;
         private bool _isCaught;
 
         private Tweener _tweener;
@@ -70,6 +72,8 @@ namespace JohnCricketFishingGame.Source
         {
             var deltaTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
 
+            _timer += deltaTime;
+
             _boundingBox.Position = Location;
 
             _animatedSprite.Update(deltaTime);
@@ -91,12 +95,14 @@ namespace JohnCricketFishingGame.Source
 
         public void UpdateFishActivation(bool isOn)
         {
-            IsEnabled = isOn;
+            if (_isCaught == false)
+            {
+                IsEnabled = isOn;
+            }
         }
 
         public void RemoveFish(int index)
         {
-            //Game1.fishList.RemoveAt(index);
 
             fishList[index]._isCaught = true;
 
@@ -104,12 +110,40 @@ namespace JohnCricketFishingGame.Source
             {
                 fishList[i].UpdateFishActivation(false);
             }
+
+            fishList.RemoveAt(index);
+        }
+
+        public static void AddFishs(int fishCount)
+        {
+            fishList.Clear();
+
+            for (int i = 0; i < fishCount; i++)
+            {
+                fishList.Add(new Fish(i));
+            }
+
+            UpdateFishStatus(0);
+        }
+
+        public static void UpdateFishStatus(int focusedFish = 0)
+        {
+            for (int i = 0; i < Fish.fishList.Count; i++)
+            {
+                fishList[i].UpdateFishActivation(false);
+
+                if(focusedFish == i)
+                {
+                    fishList[i].UpdateFishActivation(true);
+                }
+
+            }
         }
 
         public Fish(int offset)
         {
             _scale = 1;
-
+            _maxTimer = 3;
             _sprite = Game1.GameContent.Load<SpriteSheet>("Assets/Art/Animation/Fish.sf", new JsonContentLoader());
             _playField = Game1.GameContent.Load<Texture2D>("Assets/Art/Playfield");
             _animatedSprite = new AnimatedSprite(_sprite);

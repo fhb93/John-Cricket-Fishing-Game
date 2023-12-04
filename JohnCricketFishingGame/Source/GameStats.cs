@@ -148,18 +148,21 @@ namespace JohnCricketFishingGame.Source
                 IsGameOver = true;
             }
 
-            if (countDown > 0.1f)
+            if (countDown > 0.01f)
             {
-                countDown -= gt.ElapsedGameTime.TotalSeconds * 1.1f;
+                countDown -= gt.ElapsedGameTime.TotalSeconds;
             }
             else
             {
+                // while there are still some levels available to play
                 if(_level < CustomerLevel.Colonel)
                 {
                     _level++;
                     countDown = countDownTimes[(int)_level];
                     _suspicion = 0;
+                    Fish.AddFishs(8);
                 }
+                // otherwise, finish the game and checks if there is a new high score
                 else
                 {
                     IsGameOver = true;

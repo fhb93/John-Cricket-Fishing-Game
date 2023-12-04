@@ -14,9 +14,9 @@ namespace JohnCricketFishingGame.Source
         private FastRandom _random;
         private Tweener _tweener;
         private Size2 _targetSize;
-        private double timer;
-        private double maxTimer = 5;
-        private const int startingPatience = 12;
+        private double _timer;
+        private double _maxTimer = 5;
+        private const int _startingPatience = 12;
         private RectangleF _bounds;
         private RectangleF _validArea;
         private float _minX;
@@ -27,7 +27,7 @@ namespace JohnCricketFishingGame.Source
         //patience acts like the speed of fishing rod and also is the number of turns per round
         // if it reaches 1, the a new round starts with a more difficult customer
         // 7 customers: Kid; Teen; Bachelor holder; Mayor; Priest; Bishop; Colonel, the fearsome Landowner
-        private int patience = startingPatience;
+        private int _patience = _startingPatience;
 
         public Vector2 Location;
         public Vector2 Target { get { return Location - Vector2.UnitX * _sprite.Bounds.Width * 0.2f + Vector2.UnitY * 60; } }
@@ -46,34 +46,28 @@ namespace JohnCricketFishingGame.Source
         {
             Vector2 newDest = new Vector2(_random.NextSingle(_minX, _maxX), _random.NextSingle(_minY, _maxY));
                
-            _tweener.TweenTo(target: this, expression: player => player.Location, toValue: newDest, patience, 0.5f)
+            _tweener.TweenTo(target: this, expression: player => player.Location, toValue: newDest, _patience, 0.5f)
                     .Easing(EasingFunctions.ElasticInOut);
         }
 
-        private bool _flag = false;
 
         public void Update(GameTime gt)
         {
-            timer += gt.ElapsedGameTime.TotalSeconds;
+            _timer += gt.ElapsedGameTime.TotalSeconds;
 
             _tweener.Update(gt.GetElapsedSeconds());
 
             _bounds.Position = Target;
 
-            if (timer > maxTimer)
+            if (_timer > _maxTimer)
             {
-                timer = 0;
+                _timer = 0;
                 MoveRandomly();
 
-                if(patience > 1)
+                if(_patience > 1)
                 {
-                    patience--;
+                    _patience--;
                 }
-            }
-
-            if(_flag)
-            {
-                return;
             }
 
             for(int i = 0; i < Fish.fishList.Count; i++)
@@ -108,7 +102,7 @@ namespace JohnCricketFishingGame.Source
             Location = new Vector2(96, 32);
             _targetSize = new Size2(7, 7);
             _bounds = new RectangleF(Target, _targetSize);
-            patience = startingPatience;
+            _patience = _startingPatience;
 
         }
     }
