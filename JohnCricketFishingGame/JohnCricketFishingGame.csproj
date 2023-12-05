@@ -10,7 +10,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIco>Icon.ico</ApplicationIco>
     <Company>fhbware</Company>
-    <Description>A retro arcade fishing game with a twist for MonoGameJam5</Description>
+    <Description>An arcade fishing game with a twist for the MonoGameJam5</Description>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>

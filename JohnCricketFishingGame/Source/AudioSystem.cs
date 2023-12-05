@@ -44,7 +44,7 @@ namespace JohnCricketFishingGame.Source
             _sfxs[1] = Game1.GameContent.Load<SoundEffect>("Assets/Audio/Gold");
             _sfxs[2] = Game1.GameContent.Load<SoundEffect>("Assets/Audio/Reset");
             _mixerSFXVol = 0.01f;
-            _mixerOSTVol = 0.07f;
+            _mixerOSTVol = 0.08f;
 
             Play(SongCollection.TitleTheme);
         }
