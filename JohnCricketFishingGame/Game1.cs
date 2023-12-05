@@ -121,6 +121,7 @@ namespace JohnCricketFishingGame
                 Fish.UpdateFishStatus(); 
             };
 
+
             IsPaused = true;
         }
 
@@ -163,6 +164,7 @@ namespace JohnCricketFishingGame
                 {
                     IsPaused = false;
                     CurrentGameState = GameState.GameOrPauseScreen;
+                    AudioSystem.Instance.Play(AudioSystem.SFXCollection.Reset);
                 }
                 else if(CurrentGameState == GameState.GameOver)
                 {

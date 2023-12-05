@@ -16,7 +16,7 @@ namespace JohnCricketFishingGame.Source
         private Size2 _targetSize;
         private double _timer;
         private double _maxTimer = 5;
-        private const int _startingPatience = 12;
+        private const int _startingPatience = 8;
         private RectangleF _bounds;
         private RectangleF _validArea;
         private float _minX;
@@ -85,10 +85,11 @@ namespace JohnCricketFishingGame.Source
         public Rod()
         {
             _tweener = new Tweener();
-            _random = new FastRandom();
+            int seed = Math.Abs(Guid.NewGuid().GetHashCode());
+            _random = new FastRandom(seed);
             _targetSprite = Game1.GameContent.Load<Texture2D>("Assets/Art/RodTarget");
             _sprite = Game1.GameContent.Load<Texture2D>("Assets/Art/Rod");
-            _validArea = new Rectangle(25, 20, 145, 60);
+            _validArea = new Rectangle(48, 20, 112, 50);
             _minX = _validArea.X;
             _maxX = _validArea.X + _validArea.Width;
             _minY = _validArea.Y;

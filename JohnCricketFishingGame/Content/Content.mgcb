@@ -134,6 +134,24 @@
 /processorParam:Quality=Best
 /build:Assets/Audio/1.mp3
 
+#begin Assets/Audio/Gold.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Medium
+/build:Assets/Audio/Gold.wav
+
+#begin Assets/Audio/Reset.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Medium
+/build:Assets/Audio/Reset.wav
+
+#begin Assets/Audio/Start.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Medium
+/build:Assets/Audio/Start.wav
+
 #begin Assets/Fonts/Font.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

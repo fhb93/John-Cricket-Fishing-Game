@@ -213,6 +213,8 @@ namespace JohnCricketFishingGame.Source
 
         private void LevelUpCustomer()
         {
+            AudioSystem.Instance.Play(AudioSystem.SFXCollection.Start);
+
             Fish.AddFishs(8);
             _level++;
             countDown = countDownTimes[(int)_level];

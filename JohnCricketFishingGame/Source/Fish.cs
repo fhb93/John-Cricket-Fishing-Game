@@ -99,6 +99,7 @@ namespace JohnCricketFishingGame.Source
 
         public void RemoveFish(int index)
         {
+            AudioSystem.Instance.Play(AudioSystem.SFXCollection.Gold);
 
             fishList[index]._isCaught = true;
 
@@ -112,6 +113,7 @@ namespace JohnCricketFishingGame.Source
 
         public static void AddFishs(int fishCount)
         {
+
             fishList.Clear();
 
             for (int i = 0; i < fishCount; i++)
@@ -138,7 +140,7 @@ namespace JohnCricketFishingGame.Source
 
         public Fish(int offset)
         {
-            _fishSpeed = 30;
+            _fishSpeed = 20;
             _sprite = Game1.GameContent.Load<SpriteSheet>("Assets/Art/Animation/Fish.sf", new JsonContentLoader());
             _playField = Game1.GameContent.Load<Texture2D>("Assets/Art/Playfield");
             _animatedSprite = new AnimatedSprite(_sprite);
