@@ -37,7 +37,7 @@ namespace JohnCricketFishingGame.Source
             _animatedSprite.Color = Color.LightGray;
             _animatedSprite.Play("menu");
 
-            _credits = new Label("   A Game by   \n\nFelipe  Bezerra\n\n(MonoGameJam 5)\n\n\n    - 2023 -    ", new Vector2(192 / 2, 160f * 8f / 16));
+            _credits = new Label("   A Game by   \n\nFelipe  Bezerra\n\n(MonoGameJam 5)\n\n    - 2023 -    \n\n\n      v0.5     ", new Vector2(192 / 2, 160f * 8f / 16));
            
             //John Cricket
             //João Grilo
