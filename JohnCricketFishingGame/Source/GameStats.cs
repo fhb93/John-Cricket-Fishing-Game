@@ -46,7 +46,10 @@ namespace JohnCricketFishingGame.Source
             _bossText = Game1.GameContent.Load<Texture2D>("Assets/Art/Notice");
             _suspicionSprite = Game1.GameContent.Load<SpriteSheet>("Assets/Art/Animation/Eye.sf", new JsonContentLoader());
             _suspicionAnim = new AnimatedSprite(_suspicionSprite, "blink");
-            Game1.ScoreListener += (sender, args) => PlayerScore++;
+            if (Game1.ScoreListener == null)
+            {
+                Game1.ScoreListener += (sender, args) => PlayerScore += 10;
+            }
         }
 
         public void LoadHiScore(int score)
@@ -77,27 +80,28 @@ namespace JohnCricketFishingGame.Source
             countDownTimes = new double[7];
 
             //FINAL BALANCING
-            //countDownTimes[(int)CustomerLevel.Kid] = 45;
-            //countDownTimes[(int)CustomerLevel.Teen] = 40;
-            //countDownTimes[(int)CustomerLevel.Bachelor] = 35;
-            //countDownTimes[(int)CustomerLevel.Mayor] = 30;
-            //countDownTimes[(int)CustomerLevel.Priest] = 25;
-            //countDownTimes[(int)CustomerLevel.Bishop] = 20;
-            //countDownTimes[(int)CustomerLevel.Colonel] = 15;
+            countDownTimes[(int)CustomerLevel.Kid] = 80;
+            countDownTimes[(int)CustomerLevel.Teen] = 35;
+            countDownTimes[(int)CustomerLevel.Bachelor] = 30;
+            countDownTimes[(int)CustomerLevel.Mayor] = 30;
+            countDownTimes[(int)CustomerLevel.Priest] = 20;
+            countDownTimes[(int)CustomerLevel.Bishop] = 10;
+            countDownTimes[(int)CustomerLevel.Colonel] = 5;
 
-            countDownTimes[(int)CustomerLevel.Kid] = 9;
-            countDownTimes[(int)CustomerLevel.Teen] = 9;
-            countDownTimes[(int)CustomerLevel.Bachelor] = 8;
-            countDownTimes[(int)CustomerLevel.Mayor] = 7;
-            countDownTimes[(int)CustomerLevel.Priest] = 6;
-            countDownTimes[(int)CustomerLevel.Bishop] = 5;
-            countDownTimes[(int)CustomerLevel.Colonel] = 4;
+            // Balancing for tests
+            //countDownTimes[(int)CustomerLevel.Kid] = 9;
+            //countDownTimes[(int)CustomerLevel.Teen] = 9;
+            //countDownTimes[(int)CustomerLevel.Bachelor] = 8;
+            //countDownTimes[(int)CustomerLevel.Mayor] = 7;
+            //countDownTimes[(int)CustomerLevel.Priest] = 6;
+            //countDownTimes[(int)CustomerLevel.Bishop] = 5;
+            //countDownTimes[(int)CustomerLevel.Colonel] = 4;
 
             countDown = countDownTimes[(int)_level];
 
             suspicionPerCustomer = new double[7];
 
-            //FINAL BALANCING
+            //Alternate balancing
             //suspicionPerCustomer[(int)CustomerLevel.Kid] = 9;
             //suspicionPerCustomer[(int)CustomerLevel.Teen] = 9;
             //suspicionPerCustomer[(int)CustomerLevel.Bachelor] = 8;
@@ -111,9 +115,9 @@ namespace JohnCricketFishingGame.Source
             suspicionPerCustomer[(int)CustomerLevel.Teen] = 7;
             suspicionPerCustomer[(int)CustomerLevel.Bachelor] = 6;
             suspicionPerCustomer[(int)CustomerLevel.Mayor] = 5;
-            suspicionPerCustomer[(int)CustomerLevel.Priest] = 4;
-            suspicionPerCustomer[(int)CustomerLevel.Bishop] = 3;
-            suspicionPerCustomer[(int)CustomerLevel.Colonel] = 2;
+            suspicionPerCustomer[(int)CustomerLevel.Priest] = 5;
+            suspicionPerCustomer[(int)CustomerLevel.Bishop] = 4;
+            suspicionPerCustomer[(int)CustomerLevel.Colonel] = 3;
 
             _suspicion = 0;
 
@@ -186,32 +190,47 @@ namespace JohnCricketFishingGame.Source
             if (countDown > 0.01f)
             {
                 countDown -= gt.ElapsedGameTime.TotalSeconds;
+
+                if(Fish.fishList.Count == 0)
+                {
+                    LevelUpCustomer();
+                }
             }
             else
             {
                 // while there are still some levels available to play
                 if(_level < CustomerLevel.Colonel)
                 {
-                    _level++;
-                    countDown = countDownTimes[(int)_level];
-                    _suspicion = 0;
-                    Fish.AddFishs(8);
+                    LevelUpCustomer();
                 }
                 // otherwise, finish the game and checks if there is a new high score
                 else
                 {
-                    IsGameOver = true;
-                    
-                    if(HighScore < PlayerScore)
-                    {
-                        HighScore = PlayerScore;
-                        MenuGameOver.NewRecord = true;
-                    }
+                    GameOverSetup();
                 }
             }
         }
 
-        public void CustomerSuspicion(GameTime gt)
+        private void LevelUpCustomer()
+        {
+            Fish.AddFishs(8);
+            _level++;
+            countDown = countDownTimes[(int)_level];
+            _suspicion = 0;
+        }
+
+        private void GameOverSetup()
+        {
+            IsGameOver = true;
+
+            if (HighScore < PlayerScore)
+            {
+                HighScore = PlayerScore;
+                MenuGameOver.NewRecord = true;
+            }
+        }
+
+        public void IncreaseCustomerSuspicion(GameTime gt)
         {
             if(_suspicion < suspicionPerCustomer[(int) _level])
             {

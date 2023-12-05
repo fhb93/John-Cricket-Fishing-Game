@@ -27,9 +27,7 @@ namespace JohnCricketFishingGame.Source
         private RectangleF _validArea;
         private Color playfieldColor;
 
-        private float _scale;
-        private float _maxTimer;
-        private float _timer;
+        private int _fishSpeed;
         private bool _isCaught;
 
         private Tweener _tweener;
@@ -72,8 +70,6 @@ namespace JohnCricketFishingGame.Source
         {
             var deltaTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
 
-            _timer += deltaTime;
-
             _boundingBox.Position = Location;
 
             _animatedSprite.Update(deltaTime);
@@ -81,11 +77,11 @@ namespace JohnCricketFishingGame.Source
 
         public void Move(Vector2 destination)
         {
-            if (_validArea.Contains(Location + destination * 15))
+            if (_validArea.Contains(Location + destination * _fishSpeed))
             {
                 playfieldColor = Color.Gray;
 
-                Location += destination * 15;
+                Location += destination * _fishSpeed;
             }
             else
             {
@@ -142,8 +138,7 @@ namespace JohnCricketFishingGame.Source
 
         public Fish(int offset)
         {
-            _scale = 1;
-            _maxTimer = 3;
+            _fishSpeed = 30;
             _sprite = Game1.GameContent.Load<SpriteSheet>("Assets/Art/Animation/Fish.sf", new JsonContentLoader());
             _playField = Game1.GameContent.Load<Texture2D>("Assets/Art/Playfield");
             _animatedSprite = new AnimatedSprite(_sprite);

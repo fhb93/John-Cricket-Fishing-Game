@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.Input.InputListeners;
 using System;
+using System.ComponentModel;
 
 namespace JohnCricketFishingGame
 {
@@ -25,16 +26,18 @@ namespace JohnCricketFishingGame
         private Effect _effect;
         private Menu[] _menus;
         private int _playerFishID = 0;
-        private int _fishCount = 8;
+        private int _fishCount;
         
 
-        private Vector2 destination = Vector2.Zero;
         private int vcsWidth = 192;
         private int vcsHeight = 160;
         private int ScreenWidth = 1024;
         private int ScreenHeight = 768;
+        private float _startingDelay = 0f;
+        private const float _maxStartingDelay = 1.2f;
         // bad/shortcut solution for one shot event input
         private bool _isOneShotInput = false;
+        private Vector2 destination = Vector2.Zero;
         private KeyboardState _oldState;
 
         public static EventHandler<int> ScoreListener;
@@ -57,7 +60,9 @@ namespace JohnCricketFishingGame
             GameGraphics = _graphics;
 
             gameInput = new GameInput();
-            Components.Add(new InputListenerComponent(this, gameInput.keyboardListener, gameInput.gamePadListener));
+           
+            //This is not working as intended that's why it's commented out
+            // Components.Add(new InputListenerComponent(this, gameInput.keyboardListener, gameInput.gamePadListener));
 
         }
 
@@ -105,8 +110,10 @@ namespace JohnCricketFishingGame
 
             Fish.AddFishs(_fishCount);
 
-            gameInput.keyboardListener.KeyPressed += (sender, args) => destination = gameInput.HandleInput(args.Key); //{ Window.Title = $"Key {args.Key} Pressed"; };
-            gameInput.gamePadListener.ButtonDown += (sender, args) => { Window.Title = $"Key {args.Button} Down"; };
+
+            //gameInput.keyboardListener.KeyPressed += (sender, args) => destination = gameInput.HandleInput(args.Key); //{ Window.Title = $"Key {args.Key} Pressed"; };
+           // gameInput.gamePadListener.ButtonDown += (sender, args) => { Window.Title = $"Key {args.Button} Down"; };
+
             ScoreListener += (sender, args) => 
             { 
                 _rod.ResetRod(); 
@@ -120,6 +127,12 @@ namespace JohnCricketFishingGame
 
         protected override void Update(GameTime gameTime)
         {
+            if (_startingDelay < _maxStartingDelay)
+            {
+                _startingDelay += gameTime.GetElapsedSeconds();
+                return;
+            }
+
             KeyboardState currentKeyboardState = Keyboard.GetState();
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
@@ -137,8 +150,8 @@ namespace JohnCricketFishingGame
                 }
             }
 
-            if (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed ||
-                currentKeyboardState.IsKeyDown(Keys.Space) && _oldState.IsKeyUp(Keys.Space))
+            if ((GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed) ||
+               (currentKeyboardState.IsKeyDown(Keys.Space) && _oldState.IsKeyUp(Keys.Space)))
             {
                 if(CurrentGameState == GameState.TitleScreen)
                 {
@@ -184,31 +197,36 @@ namespace JohnCricketFishingGame
 
             _rod.Update(gameTime);
 
-            // Only move fish if primary button is being hold, below code changes highlit fish according to player input
-            if (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Space))
+            // Only move fish if primary button is being hold
+            if (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed || currentKeyboardState.IsKeyDown(Keys.Space))
             {
+                if(currentKeyboardState.GetPressedKeys().Length > 1) 
+                {
+                    destination = gameInput.HandleInput(currentKeyboardState.GetPressedKeys()[1]);
+                }
                 //Customer awareness here
-                _gameStats.CustomerSuspicion(gameTime);
+                _gameStats.IncreaseCustomerSuspicion(gameTime);
             }
+            //changes highlit fish according to player input
             else
             {
                 if (GamePad.GetState(PlayerIndex.One).DPad.Left == ButtonState.Pressed ||
-                   Keyboard.GetState().IsKeyDown(Keys.Left))
+                   currentKeyboardState.IsKeyDown(Keys.Left))
                 {
                     ToggleFishControl(Keys.Left);
                 }
                 else if (GamePad.GetState(PlayerIndex.One).DPad.Right == ButtonState.Pressed ||
-                    Keyboard.GetState().IsKeyDown(Keys.Right))
+                    currentKeyboardState.IsKeyDown(Keys.Right))
                 {
                     ToggleFishControl(Keys.Right);
                 }
                 else if (GamePad.GetState(PlayerIndex.One).DPad.Up == ButtonState.Pressed ||
-                  Keyboard.GetState().IsKeyDown(Keys.Up))
+                  currentKeyboardState.IsKeyDown(Keys.Up))
                 {
                     ToggleFishControl(Keys.Up);
                 }
                 else if(GamePad.GetState(PlayerIndex.One).DPad.Down == ButtonState.Pressed ||
-                  Keyboard.GetState().IsKeyDown(Keys.Down))
+                  currentKeyboardState.IsKeyDown(Keys.Down))
                 {
                     ToggleFishControl(Keys.Down);
                 }
@@ -227,8 +245,10 @@ namespace JohnCricketFishingGame
                 Fish.fishList[i].Update(gameTime);
             }
 
-            Fish.fishList[_playerFishID].Move(destination * gameTime.GetElapsedSeconds());
-
+            if (Fish.fishList.Count > 0)
+            {
+                Fish.fishList[_playerFishID].Move(destination * gameTime.GetElapsedSeconds());
+            }
 
             base.Update(gameTime);
         }
@@ -318,11 +338,7 @@ namespace JohnCricketFishingGame
         {
             _fishCount = Fish.fishList.Count;
             
-            if(_fishCount == 6)
-            {
-                Console.WriteLine();
-            }
-
+            // this updates middle index whenever there is a different amount of fish rather than the starting 8
             int fishMidleIndex = ((_fishCount - 1) / 2);
 
             if (_isOneShotInput == true)
